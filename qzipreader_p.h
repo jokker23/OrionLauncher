@@ -36,9 +36,7 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-
-#ifndef QZIPREADER_H
-#define QZIPREADER_H
+#pragma once
 
 #include <QtCore/qglobal.h>
 
@@ -63,24 +61,24 @@ QT_BEGIN_NAMESPACE
 
 class QZipReaderPrivate;
 
-class Q_GUI_EXPORT QZipReader
+class /*Q_GUI_EXPORT*/ QZipReader
 {
 public:
-    explicit QZipReader(const QString &fileName, QIODevice::OpenMode mode = QIODevice::ReadOnly );
+    explicit QZipReader(const QString &fileName, QIODevice::OpenMode mode = QIODevice::ReadOnly);
 
     explicit QZipReader(QIODevice *device);
     ~QZipReader();
 
-    QIODevice* device() const;
+    QIODevice *device() const;
 
     bool isReadable() const;
     bool exists() const;
 
     struct FileInfo
     {
-        FileInfo() Q_DECL_NOTHROW
-            : isDir(false), isFile(false), isSymLink(false), crc(0), size(0)
-        {}
+        FileInfo() Q_DECL_NOTHROW : isDir(false), isFile(false), isSymLink(false), crc(0), size(0)
+        {
+        }
 
         bool isValid() const Q_DECL_NOTHROW { return isDir || isFile || isSymLink; }
 
@@ -101,7 +99,8 @@ public:
     QByteArray fileData(const QString &fileName) const;
     bool extractAll(const QString &destinationDir) const;
 
-    enum Status {
+    enum Status
+    {
         NoError,
         FileReadError,
         FileOpenError,
@@ -123,4 +122,3 @@ Q_DECLARE_TYPEINFO(QZipReader::Status, Q_PRIMITIVE_TYPE);
 QT_END_NAMESPACE
 
 #endif // QT_NO_TEXTODFWRITER
-#endif // QZIPREADER_H

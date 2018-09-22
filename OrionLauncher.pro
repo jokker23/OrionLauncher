@@ -6,12 +6,8 @@
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
-QT       += core gui concurrent
-
-include("$$PWD/UpdateManager/UpdateManager.pri")
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
+QT       += core gui  network widgets
+# concurrent
 TARGET = OrionLauncher
 TEMPLATE = app
 
@@ -19,13 +15,16 @@ SOURCES += main.cpp\
         orionlauncherwindow.cpp \
     serverlistitem.cpp \
     proxylistitem.cpp \
-    changelogform.cpp
+    changelogform.cpp \
+    updatemanager.cpp
 
 HEADERS  += orionlauncherwindow.h \
     serverlistitem.h \
     proxylistitem.h \
     qzipreader_p.h \
-    changelogform.h
+    changelogform.h \
+    updatemanager.h \
+    updateinfo.h
 
 FORMS    += orionlauncherwindow.ui \
     changelogform.ui

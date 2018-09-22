@@ -3,77 +3,79 @@
 ** ServerListItem.h
 **
 ** Copyright (C) October 2016 Hotride
+** Copyright (C) December 2018 Danny Angelo Carminati Grein
 **
 ************************************************************************************
 */
-//----------------------------------------------------------------------------------
-#ifndef SERVERLISTITEM_H
-#define SERVERLISTITEM_H
-//----------------------------------------------------------------------------------
+#pragma once
+
 #include <QListWidgetItem>
-//----------------------------------------------------------------------------------
+
 class CServerListItem : public QListWidgetItem
 {
 private:
-	QString m_Address{ "" };
-	QString m_Account{ "" };
-	QString m_Password{ "" };
-	QString m_Character{ "" };
-	QString m_Command{ "" };
-	bool m_Encrypted{ false };
-	bool m_UseProxy{ false };
-	QString m_Proxy{ "" };
+    QString m_Address;
+    QString m_Account;
+    QString m_Password;
+    QString m_Character;
+    QString m_Command;
+    bool m_Encrypted{ false };
+    bool m_UseProxy{ false };
+    QString m_Proxy;
 
-	bool m_OptionAutologin{ false };
-	bool m_OptionSavePassword{ false };
-	bool m_OptionSaveAero{ false };
-	bool m_OptionFastLogin{ false };
-	bool m_OptionRunUOAM{ false };
+    bool m_OptionAutologin{ false };
+    bool m_OptionSavePassword{ false };
+    bool m_OptionSaveAero{ false };
+    bool m_OptionFastLogin{ false };
+    bool m_OptionRunUOAM{ false };
 
 public:
-	CServerListItem(const QString &name);
-	CServerListItem(const QString &name, const QString &address, const QString &account, const QString &password, const QString &character, const bool &encrypted);
-	virtual ~CServerListItem() {}
+    CServerListItem(const QString &name);
+    CServerListItem(
+        const QString &name,
+        const QString &address,
+        const QString &account,
+        const QString &password,
+        const QString &character,
+        const bool &encrypted);
+    virtual ~CServerListItem() {}
 
-	QString GetAddress() const { return m_Address; }
-	void SetAddress(const QString &address) { m_Address = address; }
+    QString GetAddress() const { return m_Address; }
+    void SetAddress(const QString &address) { m_Address = address; }
 
-	QString GetAccount() const { return m_Account; }
-	void SetAccount(const QString &account) { m_Account = account; }
+    QString GetAccount() const { return m_Account; }
+    void SetAccount(const QString &account) { m_Account = account; }
 
-	QString GetPassword() const { return m_Password; }
-	void SetPassword(const QString &password) { m_Password = password; }
+    QString GetPassword() const { return m_Password; }
+    void SetPassword(const QString &password) { m_Password = password; }
 
-	QString GetCharacter() const { return m_Character; }
-	void SetCharacter(const QString &character) { m_Character = character; }
+    QString GetCharacter() const { return m_Character; }
+    void SetCharacter(const QString &character) { m_Character = character; }
 
-	QString GetCommand() const { return m_Command; }
-	void SetCommand(const QString &command) { m_Command = command; }
+    QString GetCommand() const { return m_Command; }
+    void SetCommand(const QString &command) { m_Command = command; }
 
-	bool GetEncrypted() const { return m_Encrypted; }
-	void SetEncrypted(const bool &encrypted) { m_Encrypted = encrypted; }
+    bool GetEncrypted() const { return m_Encrypted; }
+    void SetEncrypted(const bool &encrypted) { m_Encrypted = encrypted; }
 
-	bool GetUseProxy() const { return m_UseProxy; }
-	void SetUseProxy(const bool &useProxy) { m_UseProxy = useProxy; }
+    bool GetUseProxy() const { return m_UseProxy; }
+    void SetUseProxy(const bool &useProxy) { m_UseProxy = useProxy; }
 
-	QString GetProxy() const { return m_Proxy; }
-	void SetProxy(const QString &proxy) { m_Proxy = proxy; }
+    QString GetProxy() const { return m_Proxy; }
+    void SetProxy(const QString &proxy) { m_Proxy = proxy; }
 
-	bool GetOptionAutologin() const { return m_OptionAutologin; }
-	void SetOptionAutologin(const bool &autologin) { m_OptionAutologin = autologin; }
+    bool GetOptionAutologin() const { return m_OptionAutologin; }
+    void SetOptionAutologin(const bool &autologin) { m_OptionAutologin = autologin; }
 
-	bool GetOptionSavePassword() const { return m_OptionSavePassword; }
-	void SetOptionSavePassword(const bool &savePassword) { m_OptionSavePassword = savePassword; }
+    bool GetOptionSavePassword() const { return m_OptionSavePassword; }
+    void SetOptionSavePassword(const bool &savePassword) { m_OptionSavePassword = savePassword; }
 
-	bool GetOptionSaveAero() const { return m_OptionSaveAero; }
-	void SetOptionSaveAero(const bool &saveAero) { m_OptionSaveAero = saveAero; }
+    bool GetOptionSaveAero() const { return m_OptionSaveAero; }
+    void SetOptionSaveAero(const bool &saveAero) { m_OptionSaveAero = saveAero; }
 
-	bool GetOptionFastLogin() const { return m_OptionFastLogin; }
-	void SetOptionFastLogin(const bool &fastLogin) { m_OptionFastLogin = fastLogin; }
+    bool GetOptionFastLogin() const { return m_OptionFastLogin; }
+    void SetOptionFastLogin(const bool &fastLogin) { m_OptionFastLogin = fastLogin; }
 
-	bool GetOptionRunUOAM() const { return m_OptionRunUOAM; }
-	void SetOptionRunUOAM(const bool &runUOAM) { m_OptionRunUOAM = runUOAM; }
+    bool GetOptionRunUOAM() const { return m_OptionRunUOAM; }
+    void SetOptionRunUOAM(const bool &runUOAM) { m_OptionRunUOAM = runUOAM; }
 };
-//----------------------------------------------------------------------------------
-#endif // SERVERLISTITEM_H
-//----------------------------------------------------------------------------------

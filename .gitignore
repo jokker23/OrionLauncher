@@ -4,3 +4,17 @@
 /DEPLOY
 Makefile*
 !/WikiData/RU/*.txt
+/INSTALL
+/bin
+.qmake*
+.vs/
+GeneratedFiles/
+debug/
+release/
+x64/
+OrionLauncher.sln
+OrionLauncher.vcxproj
+OrionLauncher.vcxproj.filters
+Proxy.xml
+Server.xml
+orionlauncher.aps

@@ -3,46 +3,37 @@
 ** ChangelogForm.h
 **
 ** Copyright (C) October 2017 Hotride
+** Copyright (C) December 2018 Danny Angelo Carminati Grein
 **
 ************************************************************************************
 */
-//----------------------------------------------------------------------------------
-#ifndef CHANGELOGFORM_H
-#define CHANGELOGFORM_H
-//----------------------------------------------------------------------------------
+#pragma once
+
 #include <QMainWindow>
 #include <QUrl>
-#include "UpdateManager/updatemanager.hpp"
-//----------------------------------------------------------------------------------
+#include "updatemanager.h"
+#include "updateinfo.h"
+
 namespace Ui
 {
-	class ChangelogForm;
+class ChangelogForm;
 }
-//----------------------------------------------------------------------------------
+
 class ChangelogForm : public QMainWindow
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	explicit ChangelogForm(QWidget *parent = 0);
-	~ChangelogForm();
+    explicit ChangelogForm(QWidget *parent = nullptr);
+    ~ChangelogForm();
 
-private slots:
-	void slot_ChangelogReceived(QString str);
-	void slot_StartLink(QUrl url);
+public slots:
+    void onChangelogReceived(const QString &str);
+    void onStartLink(const QUrl &url);
 
 signals:
-	void signal_UpdatesListReceived(QList<CUpdateInfo>);
-	void signal_BackupsListReceived(QList<CBackupInfo>);
-	void signal_ChangelogReceived(QString);
-	void signal_FileReceived(QByteArray, QString);
-	void signal_FileReceivedNotification(QString);
-	void signal_AutoUpdateProgress(int);
-	void signal_AutoUpdateNotification();
+    void changelogReceived(const QString &);
 
 private:
-	Ui::ChangelogForm *ui;
+    Ui::ChangelogForm *ui = nullptr;
 };
-//----------------------------------------------------------------------------------
-#endif // CHANGELOGFORM_H
-//----------------------------------------------------------------------------------
