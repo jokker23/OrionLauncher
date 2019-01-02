@@ -7,7 +7,7 @@
 **
 ************************************************************************************
 */
-#include "ProxyListItem.h"
+#include "proxylistitem.h"
 
 CProxyListItem::CProxyListItem(const QString &name)
     : QListWidgetItem(name)

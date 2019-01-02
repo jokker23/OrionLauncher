@@ -29,8 +29,8 @@ ProgressDialog::ProgressDialog(const QString &filename, QWidget *parent)
 
 void ProgressDialog::networkReplyProgress(qint64 bytesRead, qint64 totalBytes)
 {
-    setMaximum(totalBytes);
-    setValue(bytesRead);
+    setMaximum(int(totalBytes));
+    setValue(int(bytesRead));
 }
 
 UpdateManager::UpdateManager(const QString &host, const QString &userAgent, QObject *parent)
@@ -141,7 +141,7 @@ void UpdateManager::getFile(
             emit downloadProgress(bytesRead, totalBytes);
         });
     connect(
-        reply, &QIODevice::readyRead, this, [this, file, reply] { file->write(reply->readAll()); });
+        reply, &QIODevice::readyRead, this, [file, reply] { file->write(reply->readAll()); });
 
     connect(reply, &QNetworkReply::finished, this, [=] {
         QFileInfo fi;

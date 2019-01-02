@@ -15,6 +15,8 @@
 #include <QProcess>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <QApplication>
+#include <QtWidgets>
 
 #include "orionlauncherwindow.h"
 #include "proxylistitem.h"
@@ -1030,18 +1032,18 @@ void OrionLauncherWindow::updateOAFeaturesCode()
     quint64 featuresFlags = 0;
     quint64 scriptGroupsFlags = 0;
 
-    for (quint64 i = 0; i < (quint64)ui->lw_OAFeaturesOptions->count(); i++)
+    for (auto i = 0; i < ui->lw_OAFeaturesOptions->count(); i++)
     {
         auto item = ui->lw_OAFeaturesOptions->item(i);
         if (item != nullptr && item->checkState() == Qt::Checked)
-            featuresFlags |= ((quint64)1 << i);
+            featuresFlags |= (quint64(1) << i);
     }
 
-    for (quint64 i = 0; i < (quint64)ui->lw_OAFeaturesScripts->count(); i++)
+    for (auto i = 0; i < ui->lw_OAFeaturesScripts->count(); i++)
     {
         auto item = ui->lw_OAFeaturesScripts->item(i);
         if (item != nullptr && item->checkState() == Qt::Checked)
-            scriptGroupsFlags |= ((quint64)1 << i);
+            scriptGroupsFlags |= (quint64(1) << i);
     }
 
     QString code;
@@ -1049,10 +1051,10 @@ void OrionLauncherWindow::updateOAFeaturesCode()
     {
         code.sprintf(
             "//data for sendpacket\nB0FC W015 W0A001 D0%08X D0%08X D0%08X D0%08X",
-            (uint)((featuresFlags >> 32) & 0xFFFFFFFF),
-            (uint)(featuresFlags & 0xFFFFFFFF),
-            (uint)((scriptGroupsFlags >> 32) & 0xFFFFFFFF),
-            (uint)(scriptGroupsFlags & 0xFFFFFFFF));
+            uint((featuresFlags >> 32) & 0xFFFFFFFF),
+            uint(featuresFlags & 0xFFFFFFFF),
+            uint((scriptGroupsFlags >> 32) & 0xFFFFFFFF),
+            uint(scriptGroupsFlags & 0xFFFFFFFF));
     }
     else if (ui->rb_OAFeaturesRunUO->isChecked())
     {
@@ -1069,10 +1071,10 @@ void OrionLauncherWindow::updateOAFeaturesCode()
             "m_Stream.Write((uint)0x%08X);\n"
             "}\n"
             "}",
-            (uint)((featuresFlags >> 32) & 0xFFFFFFFF),
-            (uint)(featuresFlags & 0xFFFFFFFF),
-            (uint)((scriptGroupsFlags >> 32) & 0xFFFFFFFF),
-            (uint)(scriptGroupsFlags & 0xFFFFFFFF));
+            uint((featuresFlags >> 32) & 0xFFFFFFFF),
+            uint(featuresFlags & 0xFFFFFFFF),
+            uint((scriptGroupsFlags >> 32) & 0xFFFFFFFF),
+            uint(scriptGroupsFlags & 0xFFFFFFFF));
     }
     else if (ui->rb_OAFeaturesPOL->isChecked())
     {
@@ -1083,10 +1085,10 @@ void OrionLauncherWindow::updateOAFeaturesCode()
             "print(\"SendPacket error: \" + res.errortext );\n"
             "endif\n"
             "endprogram",
-            (uint)((featuresFlags >> 32) & 0xFFFFFFFF),
-            (uint)(featuresFlags & 0xFFFFFFFF),
-            (uint)((scriptGroupsFlags >> 32) & 0xFFFFFFFF),
-            (uint)(scriptGroupsFlags & 0xFFFFFFFF));
+            uint((featuresFlags >> 32) & 0xFFFFFFFF),
+            uint(featuresFlags & 0xFFFFFFFF),
+            uint((scriptGroupsFlags >> 32) & 0xFFFFFFFF),
+            uint(scriptGroupsFlags & 0xFFFFFFFF));
     }
     ui->pte_OAFeaturesCode->setPlainText(code);
 }
@@ -1225,7 +1227,7 @@ void OrionLauncherWindow::on_pb_ApplyUpdates_clicked()
     QList<CUpdateInfoListWidgetItem *> updateList;
     for (int i = 0; i < ui->lw_AvailableUpdates->count(); i++)
     {
-        auto item = (CUpdateInfoListWidgetItem *)ui->lw_AvailableUpdates->item(i);
+        auto item = static_cast<CUpdateInfoListWidgetItem *>(ui->lw_AvailableUpdates->item(i));
         if (item == nullptr)
             continue;
 
@@ -1305,7 +1307,7 @@ void OrionLauncherWindow::unzipPackage(const QString &filename, const QString &t
 
 void OrionLauncherWindow::onDownloadProgress(qint64 bytesRead, qint64 totalBytes)
 {
-    ui->pb_UpdateProgress->setValue(100 * (bytesRead / (float)totalBytes));
+    ui->pb_UpdateProgress->setValue(100 * int(bytesRead / float(totalBytes)));
 }
 
 void OrionLauncherWindow::on_pb_ShowChangelog_clicked()

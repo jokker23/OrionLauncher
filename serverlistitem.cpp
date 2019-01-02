@@ -7,7 +7,7 @@
 **
 ************************************************************************************
 */
-#include "ServerListItem.h"
+#include "serverlistitem.h"
 
 CServerListItem::CServerListItem(const QString &name)
     : QListWidgetItem(name)

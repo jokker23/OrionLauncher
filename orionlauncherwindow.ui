@@ -38,7 +38,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tb_Server">
        <attribute name="title">
@@ -130,8 +130,8 @@
            <rect>
             <x>10</x>
             <y>60</y>
-            <width>81</width>
-            <height>17</height>
+            <width>90</width>
+            <height>20</height>
            </rect>
           </property>
           <property name="text">
@@ -143,8 +143,8 @@
            <rect>
             <x>10</x>
             <y>80</y>
-            <width>111</width>
-            <height>17</height>
+            <width>120</width>
+            <height>20</height>
            </rect>
           </property>
           <property name="text">
@@ -157,7 +157,7 @@
             <x>190</x>
             <y>60</y>
             <width>101</width>
-            <height>17</height>
+            <height>20</height>
            </rect>
           </property>
           <property name="text">
@@ -169,8 +169,8 @@
            <rect>
             <x>10</x>
             <y>100</y>
-            <width>171</width>
-            <height>17</height>
+            <width>180</width>
+            <height>20</height>
            </rect>
           </property>
           <property name="text">
@@ -181,9 +181,9 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>280</y>
-            <width>131</width>
-            <height>17</height>
+            <y>270</y>
+            <width>151</width>
+            <height>30</height>
            </rect>
           </property>
           <property name="text">
@@ -195,8 +195,8 @@
            <rect>
             <x>10</x>
             <y>120</y>
-            <width>271</width>
-            <height>17</height>
+            <width>310</width>
+            <height>20</height>
            </rect>
           </property>
           <property name="text">
@@ -206,10 +206,10 @@
          <widget class="QCheckBox" name="cb_NoClientWarnings">
           <property name="geometry">
            <rect>
-            <x>190</x>
-            <y>280</y>
-            <width>131</width>
-            <height>17</height>
+            <x>170</x>
+            <y>270</y>
+            <width>151</width>
+            <height>30</height>
            </rect>
           </property>
           <property name="text">
@@ -499,9 +499,9 @@
        <widget class="QComboBox" name="cb_OrionPath">
         <property name="geometry">
          <rect>
-          <x>80</x>
+          <x>85</x>
           <y>10</y>
-          <width>561</width>
+          <width>556</width>
           <height>22</height>
          </rect>
         </property>
@@ -515,9 +515,9 @@
        <widget class="QCheckBox" name="cb_CheckUpdates">
         <property name="geometry">
          <rect>
-          <x>560</x>
+          <x>540</x>
           <y>60</y>
-          <width>111</width>
+          <width>120</width>
           <height>17</height>
          </rect>
         </property>
@@ -531,11 +531,17 @@
        <widget class="QPushButton" name="pb_ConfigureClientVersion">
         <property name="geometry">
          <rect>
-          <x>513</x>
+          <x>493</x>
           <y>34</y>
-          <width>151</width>
+          <width>171</width>
           <height>24</height>
          </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="styleSheet">
          <string notr="true"/>
@@ -627,7 +633,7 @@
          </rect>
         </property>
         <property name="title">
-         <string>SOCKS5 (with authorization)</string>
+         <string>SOC&amp;KS5 (with authorization)</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -693,9 +699,9 @@
         <widget class="QCheckBox" name="cb_ProxyShowPassword">
          <property name="geometry">
           <rect>
-           <x>200</x>
+           <x>190</x>
            <y>90</y>
-           <width>121</width>
+           <width>130</width>
            <height>17</height>
           </rect>
          </property>
@@ -708,7 +714,7 @@
           <rect>
            <x>10</x>
            <y>90</y>
-           <width>131</width>
+           <width>140</width>
            <height>17</height>
           </rect>
          </property>
@@ -769,9 +775,9 @@
        <widget class="QPushButton" name="pb_ProxyRemove">
         <property name="geometry">
          <rect>
-          <x>560</x>
+          <x>550</x>
           <y>228</y>
-          <width>111</width>
+          <width>120</width>
           <height>23</height>
          </rect>
         </property>
