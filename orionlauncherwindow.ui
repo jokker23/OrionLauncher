@@ -47,14 +47,17 @@
        <widget class="QLabel" name="label">
         <property name="geometry">
          <rect>
-          <x>130</x>
-          <y>40</y>
-          <width>81</width>
-          <height>16</height>
+          <x>10</x>
+          <y>35</y>
+          <width>321</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
-         <string>Accounts list:</string>
+         <string>Accounts</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
        <widget class="QListWidget" name="lw_ServerList">
@@ -77,13 +80,13 @@
         <property name="geometry">
          <rect>
           <x>340</x>
-          <y>60</y>
+          <y>30</y>
           <width>331</width>
-          <height>331</height>
+          <height>361</height>
          </rect>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tb_Launcher">
          <attribute name="title">
@@ -115,10 +118,10 @@
          <widget class="QPushButton" name="pb_Launch">
           <property name="geometry">
            <rect>
-            <x>130</x>
-            <y>190</y>
-            <width>71</width>
-            <height>23</height>
+            <x>10</x>
+            <y>250</y>
+            <width>311</width>
+            <height>41</height>
            </rect>
           </property>
           <property name="text">
@@ -130,7 +133,7 @@
            <rect>
             <x>10</x>
             <y>60</y>
-            <width>90</width>
+            <width>171</width>
             <height>20</height>
            </rect>
           </property>
@@ -143,7 +146,7 @@
            <rect>
             <x>10</x>
             <y>80</y>
-            <width>120</width>
+            <width>171</width>
             <height>20</height>
            </rect>
           </property>
@@ -169,25 +172,12 @@
            <rect>
             <x>10</x>
             <y>100</y>
-            <width>180</width>
+            <width>311</width>
             <height>20</height>
            </rect>
           </property>
           <property name="text">
            <string>Save aero (for assistant)</string>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="cb_LaunchCloseAfterLaunch">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>270</y>
-            <width>151</width>
-            <height>30</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Close after launch</string>
           </property>
          </widget>
          <widget class="QCheckBox" name="cb_LaunchRunUOAM">
@@ -203,29 +193,55 @@
            <string>Run UOAM (UODir/Map/EnhancedMap.exe)</string>
           </property>
          </widget>
+         <widget class="QPushButton" name="pb_GenerateConfig">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>300</y>
+            <width>311</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Generate OrionUO.cfg for Selected Account</string>
+          </property>
+         </widget>
          <widget class="QCheckBox" name="cb_NoClientWarnings">
           <property name="geometry">
            <rect>
             <x>170</x>
-            <y>270</y>
+            <y>220</y>
             <width>151</width>
-            <height>30</height>
+            <height>20</height>
            </rect>
           </property>
           <property name="text">
            <string>No client warnings</string>
           </property>
          </widget>
+         <widget class="QCheckBox" name="cb_LaunchCloseAfterLaunch">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>220</y>
+            <width>151</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Close after launch</string>
+          </property>
+         </widget>
         </widget>
-        <widget class="QWidget" name="tb_Editor">
+        <widget class="QWidget" name="tb_Config">
          <attribute name="title">
-          <string>Editor</string>
+          <string>Config</string>
          </attribute>
          <widget class="QPushButton" name="pb_ServerAdd">
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>270</y>
+            <y>325</y>
             <width>71</width>
             <height>23</height>
            </rect>
@@ -234,28 +250,12 @@
            <string>Add new</string>
           </property>
          </widget>
-         <widget class="QCheckBox" name="cb_ServerEncryptPassword">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>130</y>
-            <width>131</width>
-            <height>17</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Encrypt password</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
          <widget class="QLineEdit" name="le_ServerPassword">
           <property name="geometry">
            <rect>
-            <x>70</x>
-            <y>100</y>
-            <width>241</width>
+            <x>90</x>
+            <y>85</y>
+            <width>161</width>
             <height>20</height>
            </rect>
           </property>
@@ -269,23 +269,29 @@
          <widget class="QLineEdit" name="le_ServerAddress">
           <property name="geometry">
            <rect>
-            <x>70</x>
-            <y>40</y>
-            <width>241</width>
+            <x>90</x>
+            <y>35</y>
+            <width>231</width>
             <height>20</height>
            </rect>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If empty, Orion will use the address set in login.cfg found in the Client Path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="text">
            <string>127.0.0.1,2593</string>
+          </property>
+          <property name="maxLength">
+           <number>256</number>
           </property>
          </widget>
          <widget class="QLabel" name="label_5">
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>102</y>
-            <width>61</width>
-            <height>16</height>
+            <y>85</y>
+            <width>71</width>
+            <height>20</height>
            </rect>
           </property>
           <property name="text">
@@ -295,23 +301,23 @@
          <widget class="QCheckBox" name="cb_ServerShowPassword">
           <property name="geometry">
            <rect>
-            <x>200</x>
-            <y>130</y>
-            <width>121</width>
-            <height>17</height>
+            <x>260</x>
+            <y>85</y>
+            <width>61</width>
+            <height>20</height>
            </rect>
           </property>
           <property name="text">
-           <string>Show password</string>
+           <string>Show</string>
           </property>
          </widget>
          <widget class="QLabel" name="label_3">
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>42</y>
-            <width>61</width>
-            <height>16</height>
+            <y>35</y>
+            <width>71</width>
+            <height>20</height>
            </rect>
           </property>
           <property name="text">
@@ -322,9 +328,9 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>12</y>
-            <width>47</width>
-            <height>13</height>
+            <y>10</y>
+            <width>71</width>
+            <height>20</height>
            </rect>
           </property>
           <property name="text">
@@ -335,9 +341,9 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>72</y>
-            <width>61</width>
-            <height>16</height>
+            <y>60</y>
+            <width>71</width>
+            <height>20</height>
            </rect>
           </property>
           <property name="text">
@@ -347,9 +353,9 @@
          <widget class="QLineEdit" name="le_ServerAccount">
           <property name="geometry">
            <rect>
-            <x>70</x>
-            <y>70</y>
-            <width>241</width>
+            <x>90</x>
+            <y>60</y>
+            <width>231</width>
             <height>20</height>
            </rect>
           </property>
@@ -364,8 +370,8 @@
           <property name="geometry">
            <rect>
             <x>200</x>
-            <y>270</y>
-            <width>111</width>
+            <y>325</y>
+            <width>121</width>
             <height>23</height>
            </rect>
           </property>
@@ -376,21 +382,24 @@
          <widget class="QLineEdit" name="le_ServerName">
           <property name="geometry">
            <rect>
-            <x>70</x>
+            <x>90</x>
             <y>10</y>
-            <width>241</width>
+            <width>231</width>
             <height>20</height>
            </rect>
           </property>
           <property name="text">
            <string>ConfigName</string>
           </property>
+          <property name="maxLength">
+           <number>256</number>
+          </property>
          </widget>
          <widget class="QPushButton" name="pb_ServerSave">
           <property name="geometry">
            <rect>
             <x>90</x>
-            <y>270</y>
+            <y>325</y>
             <width>101</width>
             <height>23</height>
            </rect>
@@ -402,10 +411,10 @@
          <widget class="QComboBox" name="cb_ServerProxy">
           <property name="geometry">
            <rect>
-            <x>90</x>
-            <y>240</y>
-            <width>221</width>
-            <height>22</height>
+            <x>110</x>
+            <y>295</y>
+            <width>211</width>
+            <height>20</height>
            </rect>
           </property>
          </widget>
@@ -413,9 +422,9 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>240</y>
-            <width>81</width>
-            <height>17</height>
+            <y>295</y>
+            <width>91</width>
+            <height>20</height>
            </rect>
           </property>
           <property name="text">
@@ -426,21 +435,21 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>160</y>
-            <width>61</width>
-            <height>16</height>
+            <y>110</y>
+            <width>81</width>
+            <height>20</height>
            </rect>
           </property>
           <property name="text">
            <string>Character:</string>
           </property>
          </widget>
-         <widget class="QLineEdit" name="le_ServeCharacter">
+         <widget class="QLineEdit" name="le_ServerCharacter">
           <property name="geometry">
            <rect>
-            <x>70</x>
-            <y>158</y>
-            <width>241</width>
+            <x>90</x>
+            <y>110</y>
+            <width>231</width>
             <height>20</height>
            </rect>
           </property>
@@ -451,12 +460,158 @@
            <number>30</number>
           </property>
          </widget>
+         <widget class="QLineEdit" name="le_ServerClientVersion">
+          <property name="geometry">
+           <rect>
+            <x>110</x>
+            <y>135</y>
+            <width>211</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>7.0.45.0</string>
+          </property>
+          <property name="maxLength">
+           <number>30</number>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_21">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>135</y>
+            <width>101</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Client Version:</string>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="le_ServerClientPath">
+          <property name="geometry">
+           <rect>
+            <x>90</x>
+            <y>160</y>
+            <width>206</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="maxLength">
+           <number>256</number>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_22">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>160</y>
+            <width>81</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Client Path:</string>
+          </property>
+         </widget>
+         <widget class="QToolButton" name="tb_SetClientPath">
+          <property name="geometry">
+           <rect>
+            <x>300</x>
+            <y>160</y>
+            <width>20</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="cb_ServerUseCrypt">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>210</y>
+            <width>101</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Use Crypt</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_23">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>185</y>
+            <width>81</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Client Type:</string>
+          </property>
+         </widget>
+         <widget class="QComboBox" name="cb_ServerClientType">
+          <property name="geometry">
+           <rect>
+            <x>90</x>
+            <y>185</y>
+            <width>231</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <item>
+           <property name="text">
+            <string>Automatic</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>The Second Age (T2A)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Renaissance (RE)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Third Dawn (TD)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Lord Blackthorn's Revenge (LBR)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Age Of Shadows (AOS)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Samurai Empire (SE)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Stygian Abyss (SA)</string>
+           </property>
+          </item>
+         </widget>
          <zorder>le_ServerName</zorder>
          <zorder>le_ServerAddress</zorder>
          <zorder>le_ServerAccount</zorder>
          <zorder>le_ServerPassword</zorder>
          <zorder>pb_ServerAdd</zorder>
-         <zorder>cb_ServerEncryptPassword</zorder>
          <zorder>label_5</zorder>
          <zorder>cb_ServerShowPassword</zorder>
          <zorder>label_3</zorder>
@@ -467,29 +622,53 @@
          <zorder>cb_ServerProxy</zorder>
          <zorder>cb_ServerUseProxy</zorder>
          <zorder>label_18</zorder>
-         <zorder>le_ServeCharacter</zorder>
+         <zorder>le_ServerCharacter</zorder>
+         <zorder>le_ServerClientVersion</zorder>
+         <zorder>label_21</zorder>
+         <zorder>le_ServerClientPath</zorder>
+         <zorder>label_22</zorder>
+         <zorder>tb_SetClientPath</zorder>
+         <zorder>cb_ServerUseCrypt</zorder>
+         <zorder>label_23</zorder>
+         <zorder>cb_ServerClientType</zorder>
         </widget>
+       </widget>
+       <widget class="QCheckBox" name="cb_CheckUpdates">
+        <property name="geometry">
+         <rect>
+          <x>530</x>
+          <y>35</y>
+          <width>141</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Check Updates</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
        </widget>
        <widget class="QLabel" name="label_13">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>11</y>
-          <width>71</width>
+          <y>7</y>
+          <width>91</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>Orion path:</string>
+         <string>Orion Client:</string>
         </property>
        </widget>
        <widget class="QToolButton" name="tb_SetOrionPath">
         <property name="geometry">
          <rect>
-          <x>640</x>
-          <y>9</y>
-          <width>24</width>
-          <height>24</height>
+          <x>650</x>
+          <y>5</y>
+          <width>20</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
@@ -499,55 +678,146 @@
        <widget class="QComboBox" name="cb_OrionPath">
         <property name="geometry">
          <rect>
-          <x>85</x>
+          <x>95</x>
+          <y>5</y>
+          <width>551</width>
+          <height>20</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tb_Update">
+       <attribute name="title">
+        <string>Update</string>
+       </attribute>
+       <widget class="QListWidget" name="lw_AvailableUpdates">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>311</width>
+          <height>301</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_16">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
           <y>10</y>
-          <width>556</width>
-          <height>22</height>
-         </rect>
-        </property>
-        <property name="editable">
-         <bool>false</bool>
-        </property>
-        <property name="maxVisibleItems">
-         <number>20</number>
-        </property>
-       </widget>
-       <widget class="QCheckBox" name="cb_CheckUpdates">
-        <property name="geometry">
-         <rect>
-          <x>540</x>
-          <y>60</y>
-          <width>120</width>
-          <height>17</height>
+          <width>311</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
-         <string>Check updates</string>
+         <string>Available Updates</string>
         </property>
-        <property name="checked">
-         <bool>true</bool>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
-       <widget class="QPushButton" name="pb_ConfigureClientVersion">
+       <widget class="QPushButton" name="pb_ApplyUpdates">
         <property name="geometry">
          <rect>
-          <x>493</x>
-          <y>34</y>
-          <width>171</width>
-          <height>24</height>
+          <x>180</x>
+          <y>370</y>
+          <width>141</width>
+          <height>25</height>
          </rect>
         </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+        <property name="text">
+         <string>Apply Updates</string>
         </property>
-        <property name="styleSheet">
-         <string notr="true"/>
+       </widget>
+       <widget class="QProgressBar" name="pb_UpdateProgress">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>340</y>
+          <width>311</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_17">
+        <property name="geometry">
+         <rect>
+          <x>340</x>
+          <y>10</y>
+          <width>331</width>
+          <height>20</height>
+         </rect>
         </property>
         <property name="text">
-         <string>Configure client version</string>
+         <string>Previous Versions / Beta Releases</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QListWidget" name="lw_Backups">
+        <property name="geometry">
+         <rect>
+          <x>340</x>
+          <y>31</y>
+          <width>331</width>
+          <height>331</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pb_RestoreSelectedVersion">
+        <property name="geometry">
+         <rect>
+          <x>470</x>
+          <y>370</y>
+          <width>201</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Use Selected Version</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pb_ShowChangelog">
+        <property name="geometry">
+         <rect>
+          <x>330</x>
+          <y>370</y>
+          <width>131</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Show Changelog</string>
+        </property>
+       </widget>
+       <widget class="Line" name="line">
+        <property name="geometry">
+         <rect>
+          <x>320</x>
+          <y>30</y>
+          <width>20</width>
+          <height>331</height>
+         </rect>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pb_CheckUpdates">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>370</y>
+          <width>151</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Check New Versions</string>
         </property>
        </widget>
       </widget>
@@ -558,14 +828,17 @@
        <widget class="QLabel" name="label_6">
         <property name="geometry">
          <rect>
-          <x>130</x>
+          <x>10</x>
           <y>10</y>
-          <width>111</width>
-          <height>16</height>
+          <width>331</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
-         <string>Proxy servers list:</string>
+         <string>Proxy Server List</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
        <widget class="QListWidget" name="lw_ProxyList">
@@ -615,8 +888,8 @@
          <rect>
           <x>570</x>
           <y>60</y>
-          <width>47</width>
-          <height>13</height>
+          <width>41</width>
+          <height>16</height>
          </rect>
         </property>
         <property name="text">
@@ -699,7 +972,7 @@
         <widget class="QCheckBox" name="cb_ProxyShowPassword">
          <property name="geometry">
           <rect>
-           <x>190</x>
+           <x>80</x>
            <y>90</y>
            <width>130</width>
            <height>17</height>
@@ -709,29 +982,13 @@
           <string>Show password</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="cb_ProxyEncryptPassword">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>90</y>
-           <width>140</width>
-           <height>17</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Encrypt password</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
        </widget>
        <widget class="QLineEdit" name="le_ProxyName">
         <property name="geometry">
          <rect>
           <x>410</x>
           <y>28</y>
-          <width>251</width>
+          <width>261</width>
           <height>20</height>
          </rect>
         </property>
@@ -749,7 +1006,7 @@
        <widget class="QLineEdit" name="le_ProxyPort">
         <property name="geometry">
          <rect>
-          <x>600</x>
+          <x>610</x>
           <y>58</y>
           <width>61</width>
           <height>20</height>
@@ -764,25 +1021,25 @@
          <rect>
           <x>350</x>
           <y>228</y>
-          <width>71</width>
+          <width>81</width>
           <height>23</height>
          </rect>
         </property>
         <property name="text">
-         <string>Add new</string>
+         <string>Add New</string>
         </property>
        </widget>
        <widget class="QPushButton" name="pb_ProxyRemove">
         <property name="geometry">
          <rect>
-          <x>550</x>
+          <x>549</x>
           <y>228</y>
-          <width>120</width>
+          <width>121</width>
           <height>23</height>
          </rect>
         </property>
         <property name="text">
-         <string>Remove selected</string>
+         <string>Remove Selected</string>
         </property>
        </widget>
        <widget class="QPushButton" name="pb_ProxySave">
@@ -795,156 +1052,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>Save selected</string>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="tb_Update">
-       <attribute name="title">
-        <string>Update</string>
-       </attribute>
-       <widget class="QListWidget" name="lw_AvailableUpdates">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>30</y>
-          <width>291</width>
-          <height>301</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_16">
-        <property name="geometry">
-         <rect>
-          <x>110</x>
-          <y>10</y>
-          <width>111</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Available updates:</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pb_CheckUpdates">
-        <property name="geometry">
-         <rect>
-          <x>260</x>
-          <y>0</y>
-          <width>141</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Check new versions</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pb_ApplyUpdates">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>370</y>
-          <width>121</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Apply updates</string>
-        </property>
-       </widget>
-       <widget class="QProgressBar" name="pb_UpdateProgress">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>340</y>
-          <width>251</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="value">
-         <number>0</number>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_17">
-        <property name="geometry">
-         <rect>
-          <x>460</x>
-          <y>10</y>
-          <width>131</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Backup/test versions:</string>
-        </property>
-       </widget>
-       <widget class="QListWidget" name="lw_Backups">
-        <property name="geometry">
-         <rect>
-          <x>355</x>
-          <y>31</y>
-          <width>311</width>
-          <height>301</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pb_RestoreSelectedVersion">
-        <property name="geometry">
-         <rect>
-          <x>430</x>
-          <y>340</y>
-          <width>171</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Restore selected version</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pb_ShowChangelog">
-        <property name="geometry">
-         <rect>
-          <x>430</x>
-          <y>370</y>
-          <width>131</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Show changelog</string>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="cb_ChangelogLanguage">
-        <property name="geometry">
-         <rect>
-          <x>560</x>
-          <y>371</y>
-          <width>41</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <item>
-         <property name="text">
-          <string>EN</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>RU</string>
-         </property>
-        </item>
-       </widget>
-       <widget class="Line" name="line">
-        <property name="geometry">
-         <rect>
-          <x>320</x>
-          <y>30</y>
-          <width>20</width>
-          <height>371</height>
-         </rect>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+         <string>Save Selected</string>
         </property>
        </widget>
       </widget>
@@ -973,12 +1081,12 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>101</width>
+          <width>271</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>Enabled options:</string>
+         <string>Enabled Options:</string>
         </property>
        </widget>
        <widget class="QGroupBox" name="gb_OrionFeaturesEmulator">
@@ -991,7 +1099,7 @@
          </rect>
         </property>
         <property name="title">
-         <string>Output code for emulator</string>
+         <string>Output Code for Emulator</string>
         </property>
         <widget class="QRadioButton" name="rb_OrionFeaturesSphere">
          <property name="geometry">
@@ -1128,12 +1236,12 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>101</width>
+          <width>181</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>Enabled options:</string>
+         <string>Enabled Options:</string>
         </property>
        </widget>
        <widget class="QListWidget" name="lw_OAFeaturesOptions">
@@ -1351,12 +1459,12 @@
          <rect>
           <x>200</x>
           <y>10</y>
-          <width>131</width>
+          <width>191</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>Enabled script groups:</string>
+         <string>Enabled Script Groups:</string>
         </property>
        </widget>
        <widget class="QListWidget" name="lw_OAFeaturesScripts">
@@ -1651,7 +1759,7 @@
          </rect>
         </property>
         <property name="title">
-         <string>Output code for emulator</string>
+         <string>Output Code for Emulator</string>
         </property>
         <widget class="QRadioButton" name="rb_OAFeaturesSphere">
          <property name="geometry">
@@ -1723,9 +1831,9 @@
         </property>
         <property name="geometry">
          <rect>
-          <x>70</x>
+          <x>80</x>
           <y>8</y>
-          <width>501</width>
+          <width>491</width>
           <height>20</height>
          </rect>
         </property>
@@ -1735,7 +1843,7 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>61</width>
+          <width>71</width>
           <height>16</height>
          </rect>
         </property>
@@ -1795,18 +1903,15 @@
  <tabstops>
   <tabstop>pb_Launch</tabstop>
   <tabstop>lw_ServerList</tabstop>
-  <tabstop>tb_SetOrionPath</tabstop>
   <tabstop>le_CommandLine</tabstop>
   <tabstop>cb_LaunchAutologin</tabstop>
   <tabstop>cb_LaunchSavePassword</tabstop>
   <tabstop>cb_LaunchSaveAero</tabstop>
   <tabstop>cb_LaunchFastLogin</tabstop>
-  <tabstop>cb_LaunchCloseAfterLaunch</tabstop>
   <tabstop>le_ServerName</tabstop>
   <tabstop>le_ServerAddress</tabstop>
   <tabstop>le_ServerAccount</tabstop>
   <tabstop>le_ServerPassword</tabstop>
-  <tabstop>cb_ServerEncryptPassword</tabstop>
   <tabstop>cb_ServerShowPassword</tabstop>
   <tabstop>cb_ServerUseProxy</tabstop>
   <tabstop>cb_ServerProxy</tabstop>
@@ -1820,7 +1925,6 @@
   <tabstop>gb_ProxySocks5</tabstop>
   <tabstop>le_ProxyAccount</tabstop>
   <tabstop>le_ProxyPassword</tabstop>
-  <tabstop>cb_ProxyEncryptPassword</tabstop>
   <tabstop>cb_ProxyShowPassword</tabstop>
   <tabstop>pb_ProxyAdd</tabstop>
   <tabstop>pb_ProxySave</tabstop>
@@ -1829,4 +1933,21 @@
  </tabstops>
  <resources/>
  <connections/>
+ <designerdata>
+  <property name="gridDeltaX">
+   <number>5</number>
+  </property>
+  <property name="gridDeltaY">
+   <number>5</number>
+  </property>
+  <property name="gridSnapX">
+   <bool>true</bool>
+  </property>
+  <property name="gridSnapY">
+   <bool>true</bool>
+  </property>
+  <property name="gridVisible">
+   <bool>true</bool>
+  </property>
+ </designerdata>
 </ui>

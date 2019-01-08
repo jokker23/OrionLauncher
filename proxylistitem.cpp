@@ -20,14 +20,12 @@ CProxyListItem::CProxyListItem(
     const QString &port,
     const bool &socks5,
     const QString &account,
-    const QString &password,
-    const bool &encrypted)
+    const QString &password)
     : QListWidgetItem(name)
     , m_Address(address)
     , m_ProxyPort(port)
     , m_Socks5(socks5)
     , m_Account(account)
     , m_Password(password)
-    , m_Encrypted(encrypted)
 {
 }

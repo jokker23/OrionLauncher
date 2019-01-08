@@ -14,19 +14,16 @@ CServerListItem::CServerListItem(const QString &name)
 {
 }
 
-CServerListItem::CServerListItem(
-    const QString &name,
+CServerListItem::CServerListItem(const QString &name,
     const QString &address,
     const QString &account,
     const QString &password,
-    const QString &character,
-    const bool &encrypted)
+    const QString &character)
     : QListWidgetItem(name)
     , m_Address(address)
     , m_Account(account)
     , m_Password(password)
     , m_Character(character)
     , m_Command("")
-    , m_Encrypted(encrypted)
 {
 }

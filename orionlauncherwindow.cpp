@@ -24,7 +24,7 @@
 #include "qzipreader_p.h"
 #include "ui_orionlauncherwindow.h"
 
-#define LAUNCHER_VERSION "1.2.0"
+#define LAUNCHER_VERSION "1.3.0"
 #define LAUNCHER_TITLE "Orion Launcher " LAUNCHER_VERSION
 #define UPDATER_HOST "http://www.orionuo.com/"
 
@@ -77,7 +77,6 @@ OrionLauncherWindow::OrionLauncherWindow(QWidget *parent)
         SLOT(onBackupsListReceived(const QList<CBackupInfo> &)));
     connect(this, SIGNAL(fileReceived(const QDir &)), this, SLOT(onFileReceived(const QDir &)));
     connect(&m_UpdatesTimer, SIGNAL(timeout()), this, SLOT(onUpdatesTimer()));
-    connect(&m_CheckClientCuoTimer, SIGNAL(timeout()), this, SLOT(onCheckClientCuoTimer()));
 
     setFixedSize(size());
 
@@ -88,6 +87,13 @@ OrionLauncherWindow::OrionLauncherWindow(QWidget *parent)
     ui->tw_Main->removeTab(5);
 #else
 
+#endif
+
+#if !_WINDOWS
+    ui->cb_LaunchRunUOAM->setEnabled(false);
+    ui->cb_LaunchRunUOAM->setVisible(false);
+    ui->cb_LaunchSaveAero->setEnabled(false);
+    ui->cb_LaunchSaveAero->setVisible(false);
 #endif
 
     ui->tw_Main->setCurrentIndex(0);
@@ -104,7 +110,6 @@ OrionLauncherWindow::OrionLauncherWindow(QWidget *parent)
 
     on_cb_OrionPath_currentIndexChanged(ui->cb_OrionPath->currentIndex());
     m_UpdatesTimer.start(15 * 60 * 1000);
-    m_CheckClientCuoTimer.start(1000);
 }
 
 OrionLauncherWindow::~OrionLauncherWindow()
@@ -124,15 +129,6 @@ void OrionLauncherWindow::onUpdatesTimer()
 {
     if (ui->cb_CheckUpdates->isChecked())
         on_pb_CheckUpdates_clicked();
-}
-
-void OrionLauncherWindow::onCheckClientCuoTimer()
-{
-    if (!QFile::exists(ui->cb_OrionPath->currentText() + "/client.cuo"))
-        ui->pb_ConfigureClientVersion->setStyleSheet(
-            "color: rgb(255, 0, 0); font: 10pt \"MS Shell Dlg 2\";");
-    else
-        ui->pb_ConfigureClientVersion->setStyleSheet("font: 10pt \"MS Shell Dlg 2\";");
 }
 
 void OrionLauncherWindow::closeEvent(QCloseEvent *event)
@@ -177,9 +173,13 @@ void OrionLauncherWindow::updateServerFields(const int &index)
         ui->le_ServerAddress->setText(item->GetAddress());
         ui->le_ServerAccount->setText(item->GetAccount());
         ui->le_ServerPassword->setText(item->GetPassword());
-        ui->le_ServeCharacter->setText(item->GetCharacter());
-        ui->cb_ServerEncryptPassword->setChecked(item->GetEncrypted());
+        ui->le_ServerCharacter->setText(item->GetCharacter());
         ui->le_CommandLine->setText(item->GetCommand());
+
+        ui->le_ServerClientVersion->setText(item->GetClientVersion());
+        ui->le_ServerClientPath->setText(item->GetClientPath());
+        ui->cb_ServerClientType->setCurrentIndex(item->GetClientType());
+        ui->cb_ServerUseCrypt->setChecked(item->GetUseCrypt());
 
         ui->cb_LaunchAutologin->setChecked(item->GetOptionAutologin());
         ui->cb_LaunchSavePassword->setChecked(item->GetOptionSavePassword());
@@ -232,8 +232,7 @@ void OrionLauncherWindow::on_pb_ServerAdd_clicked()
         ui->le_ServerAddress->text(),
         ui->le_ServerAccount->text(),
         ui->le_ServerPassword->text(),
-        ui->le_ServeCharacter->text(),
-        ui->cb_ServerEncryptPassword->isChecked());
+        ui->le_ServerCharacter->text());
     item->SetUseProxy(ui->cb_ServerUseProxy->isChecked());
     item->SetProxy(ui->cb_ServerProxy->currentText());
 
@@ -283,11 +282,14 @@ void OrionLauncherWindow::on_pb_ServerSave_clicked()
     selected->setText(ui->le_ServerName->text());
     selected->SetAddress(ui->le_ServerAddress->text());
     selected->SetAccount(ui->le_ServerAccount->text());
-    selected->SetCharacter(ui->le_ServeCharacter->text());
+    selected->SetCharacter(ui->le_ServerCharacter->text());
     selected->SetPassword(ui->le_ServerPassword->text());
-    selected->SetEncrypted(ui->cb_ServerEncryptPassword->isChecked());
-    selected->SetUseProxy(ui->cb_ServerUseProxy->isChecked());
+    selected->SetClientVersion(ui->le_ServerClientVersion->text());
+    selected->SetClientPath(ui->le_ServerClientPath->text());
+    selected->SetClientType(ui->cb_ServerClientType->currentIndex());
     selected->SetProxy(ui->cb_ServerProxy->currentText());
+    selected->SetUseProxy(ui->cb_ServerUseProxy->isChecked());
+    selected->SetUseCrypt(ui->cb_ServerUseCrypt->isChecked());
 
     saveServerList();
 }
@@ -328,7 +330,6 @@ void OrionLauncherWindow::on_lw_ProxyList_clicked(const QModelIndex &index)
         ui->gb_ProxySocks5->setChecked(item->GetSocks5());
         ui->le_ProxyAccount->setText(item->GetAccount());
         ui->le_ProxyPassword->setText(item->GetPassword());
-        ui->cb_ProxyEncryptPassword->setChecked(item->GetEncrypted());
     }
 }
 
@@ -366,8 +367,7 @@ void OrionLauncherWindow::on_pb_ProxyAdd_clicked()
         ui->le_ProxyPort->text(),
         ui->gb_ProxySocks5->isChecked(),
         ui->le_ProxyAccount->text(),
-        ui->le_ProxyPassword->text(),
-        ui->cb_ProxyEncryptPassword->isChecked()));
+        ui->le_ProxyPassword->text()));
 
     ui->lw_ProxyList->setCurrentRow(ui->lw_ProxyList->count() - 1);
 
@@ -418,7 +418,6 @@ void OrionLauncherWindow::on_pb_ProxySave_clicked()
     selected->SetSocks5(ui->gb_ProxySocks5->isChecked());
     selected->SetAccount(ui->le_ProxyAccount->text());
     selected->SetPassword(ui->le_ProxyPassword->text());
-    selected->SetEncrypted(ui->cb_ProxyEncryptPassword->isChecked());
     saveProxyList();
 
     ui->cb_ServerProxy->setItemText(ui->lw_ProxyList->currentRow(), ui->le_ProxyName->text());
@@ -459,39 +458,68 @@ bool OrionLauncherWindow::rawStringToBool(QString value)
     return result;
 }
 
+void OrionLauncherWindow::writeCfg()
+{
+    auto item = static_cast<CServerListItem *>(ui->lw_ServerList->currentItem());
+    if (item == nullptr)
+    {
+        return;
+    }
+
+    QFile file(QDir::currentPath() + "/OrionUO.cfg");
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QTextStream stream(&file);
+        stream << "AcctID=" << item->GetAccount() << endl;
+        if (item->GetOptionSavePassword())
+        {
+            stream << "AcctPassword=" << item->GetPassword() << endl;
+            stream << "RememberActPW=yes" << endl;
+        }
+        stream << "AutoLogin=" << (item->GetOptionFastLogin() ? "yes" : "no") << endl;
+        stream << "ClientType=" << item->GetClientTypeString() << endl;
+        stream << "Crypt=" << (item->GetUseCrypt() ? "yes" : "no") << endl;
+        stream << "ClientVersion=" << item->GetClientVersion() << endl;
+        stream << "CustomPath=" << item->GetClientPath() << endl;
+        if (!item->GetAddress().isEmpty())
+        {
+            stream << "LoginServer=" << item->GetAddress() << endl;
+        }
+    }
+}
+
 void OrionLauncherWindow::saveProxyList()
 {
     QFile file(QDir::currentPath() + "/proxy.xml");
 
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        QXmlStreamWriter writter(&file);
-        writter.setAutoFormatting(true);
-        writter.writeStartDocument();
+        QXmlStreamWriter writer(&file);
+        writer.setAutoFormatting(true);
+        writer.writeStartDocument();
 
         int count = ui->lw_ProxyList->count();
-        writter.writeStartElement("proxylist");
-        writter.writeAttribute("version", "0");
-        writter.writeAttribute("size", QString::number(count));
+        writer.writeStartElement("proxylist");
+        writer.writeAttribute("version", "0");
+        writer.writeAttribute("size", QString::number(count));
 
         for (int i = 0; i < count; i++)
         {
             auto item = static_cast<CProxyListItem *>(ui->lw_ProxyList->item(i));
             if (item != nullptr)
             {
-                writter.writeStartElement("proxy");
-                writter.writeAttribute("name", item->text());
-                writter.writeAttribute("address", item->GetAddress());
-                writter.writeAttribute("port", item->GetProxyPort());
-                writter.writeAttribute("socks5", boolToText(item->GetSocks5()));
-                writter.writeAttribute("account", item->GetAccount());
-                writter.writeAttribute("password", item->GetPassword());
-                writter.writeAttribute("encrypted", boolToText(item->GetEncrypted()));
-                writter.writeEndElement(); // proxy
+                writer.writeStartElement("proxy");
+                writer.writeAttribute("name", item->text());
+                writer.writeAttribute("address", item->GetAddress());
+                writer.writeAttribute("port", item->GetProxyPort());
+                writer.writeAttribute("socks5", boolToText(item->GetSocks5()));
+                writer.writeAttribute("account", item->GetAccount());
+                writer.writeAttribute("password", item->GetPassword());
+                writer.writeEndElement(); // proxy
             }
         }
-        writter.writeEndElement(); // proxylist
-        writter.writeEndDocument();
+        writer.writeEndElement(); // proxylist
+        writer.writeEndDocument();
         file.close();
     }
 }
@@ -501,28 +529,26 @@ void OrionLauncherWindow::saveServerList()
     QFile file(QDir::currentPath() + "/server.xml");
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        QXmlStreamWriter writter(&file);
-        writter.setAutoFormatting(true);
-        writter.writeStartDocument();
+        QXmlStreamWriter writer(&file);
+        writer.setAutoFormatting(true);
+        writer.writeStartDocument();
 
         int count = ui->lw_ServerList->count();
-        writter.writeStartElement("serverlist");
-        writter.writeAttribute("version", "0");
-        writter.writeAttribute("size", QString::number(count));
-        writter.writeAttribute("clientindex", QString::number(ui->cb_OrionPath->currentIndex()));
-        writter.writeAttribute(
+        writer.writeStartElement("serverlist");
+        writer.writeAttribute("version", "0");
+        writer.writeAttribute("size", QString::number(count));
+        writer.writeAttribute(
             "closeafterlaunch", boolToText(ui->cb_LaunchCloseAfterLaunch->isChecked()));
-        writter.writeAttribute("lastserver", QString::number(ui->lw_ServerList->currentRow()));
-        writter.writeAttribute("checkupdates", boolToText(ui->cb_CheckUpdates->isChecked()));
-        writter.writeAttribute("changeloglanguage", ui->cb_ChangelogLanguage->currentText());
-        writter.writeAttribute(
+        writer.writeAttribute("lastserver", QString::number(ui->lw_ServerList->currentRow()));
+        writer.writeAttribute("checkupdates", boolToText(ui->cb_CheckUpdates->isChecked()));
+        writer.writeAttribute(
             "noclientwarnings", boolToText(ui->cb_NoClientWarnings->isChecked()));
 
         for (int i = 0; i < ui->cb_OrionPath->count(); i++)
         {
-            writter.writeStartElement("clientpath");
-            writter.writeAttribute("path", ui->cb_OrionPath->itemText(i));
-            writter.writeEndElement(); // clientpath
+            writer.writeStartElement("clientpath");
+            writer.writeAttribute("path", ui->cb_OrionPath->itemText(i));
+            writer.writeEndElement(); // clientpath
         }
 
         for (int i = 0; i < count; i++)
@@ -530,27 +556,32 @@ void OrionLauncherWindow::saveServerList()
             auto item = static_cast<CServerListItem *>(ui->lw_ServerList->item(i));
             if (item != nullptr)
             {
-                writter.writeStartElement("server");
-                writter.writeAttribute("name", item->text());
-                writter.writeAttribute("address", item->GetAddress());
-                writter.writeAttribute("account", item->GetAccount());
-                writter.writeAttribute("password", item->GetPassword());
-                writter.writeAttribute("character", item->GetCharacter());
-                writter.writeAttribute("command", item->GetCommand());
-                writter.writeAttribute("encrypted", boolToText(item->GetEncrypted()));
-                writter.writeAttribute("useproxy", boolToText(item->GetUseProxy()));
-                writter.writeAttribute("proxyname", item->GetProxy());
-                writter.writeAttribute("optionautologin", boolToText(item->GetOptionAutologin()));
-                writter.writeAttribute(
+                writer.writeStartElement("server");
+                writer.writeAttribute("name", item->text());
+                writer.writeAttribute("address", item->GetAddress());
+                writer.writeAttribute("account", item->GetAccount());
+                writer.writeAttribute("password", item->GetPassword());
+                writer.writeAttribute("character", item->GetCharacter());
+                writer.writeAttribute("command", item->GetCommand());
+                writer.writeAttribute("useproxy", boolToText(item->GetUseProxy()));
+                writer.writeAttribute("proxyname", item->GetProxy());
+                writer.writeAttribute("optionautologin", boolToText(item->GetOptionAutologin()));
+                writer.writeAttribute(
                     "optionsavepassword", boolToText(item->GetOptionSavePassword()));
-                writter.writeAttribute("optionsaveaero", boolToText(item->GetOptionSaveAero()));
-                writter.writeAttribute("optionfastlogin", boolToText(item->GetOptionFastLogin()));
-                writter.writeAttribute("optionrunuoam", boolToText(item->GetOptionRunUOAM()));
-                writter.writeEndElement(); // server
+                writer.writeAttribute("optionsaveaero", boolToText(item->GetOptionSaveAero()));
+                writer.writeAttribute("optionfastlogin", boolToText(item->GetOptionFastLogin()));
+                writer.writeAttribute("optionrunuoam", boolToText(item->GetOptionRunUOAM()));
+
+                writer.writeAttribute("clientversion", item->GetClientVersion());
+                writer.writeAttribute("clientpath", item->GetClientPath());
+                writer.writeAttribute("clienttype", item->GetClientTypeString());
+                writer.writeAttribute("usecrypt", boolToText(item->GetUseCrypt()));
+
+                writer.writeEndElement(); // server
             }
         }
-        writter.writeEndElement(); // serverlist
-        writter.writeEndDocument();
+        writer.writeEndElement(); // serverlist
+        writer.writeEndDocument();
         file.close();
     }
 }
@@ -598,10 +629,6 @@ void OrionLauncherWindow::loadProxyList()
 
                         if (attributes.hasAttribute("password"))
                             item->SetPassword(attributes.value("password").toString());
-
-                        if (attributes.hasAttribute("encrypted"))
-                            item->SetEncrypted(
-                                rawStringToBool(attributes.value("encrypted").toString()));
 
                         ui->lw_ProxyList->addItem(item);
                         ui->cb_ServerProxy->addItem(attributes.value("name").toString());
@@ -664,10 +691,6 @@ void OrionLauncherWindow::loadServerList()
                         ui->cb_CheckUpdates->setChecked(
                             rawStringToBool(attributes.value("checkupdates").toString()));
 
-                    if (attributes.hasAttribute("changeloglanguage"))
-                        ui->cb_ChangelogLanguage->setCurrentText(
-                            attributes.value("changeloglanguage").toString());
-
                     if (attributes.hasAttribute("noclientwarnings"))
                         ui->cb_NoClientWarnings->setChecked(
                             rawStringToBool(attributes.value("noclientwarnings").toString()));
@@ -712,12 +735,21 @@ void OrionLauncherWindow::loadServerList()
                         if (attributes.hasAttribute("character"))
                             item->SetCharacter(attributes.value("character").toString());
 
+                        if (attributes.hasAttribute("clientversion"))
+                            item->SetClientVersion(attributes.value("clientversion").toString());
+
+                        if (attributes.hasAttribute("clientpath"))
+                            item->SetClientPath(attributes.value("clientpath").toString());
+
+                        if (attributes.hasAttribute("clienttype"))
+                            item->SetClientTypeFromString(attributes.value("clienttype").toString());
+
                         if (attributes.hasAttribute("command"))
                             item->SetCommand(attributes.value("command").toString());
 
-                        if (attributes.hasAttribute("encrypted"))
-                            item->SetEncrypted(
-                                rawStringToBool(attributes.value("encrypted").toString()));
+                        if (attributes.hasAttribute("usecrypt"))
+                            item->SetUseCrypt(
+                                rawStringToBool(attributes.value("usecrypt").toString()));
 
                         if (attributes.hasAttribute("useproxy"))
                             item->SetUseProxy(
@@ -762,6 +794,21 @@ void OrionLauncherWindow::loadServerList()
             updateServerFields(lastServer);
         }
         file.close();
+    }
+}
+
+void OrionLauncherWindow::on_tb_SetClientPath_clicked()
+{
+    QString clientPath = ui->le_ServerClientPath->text();
+    if (!clientPath.length())
+        clientPath = QDir::currentPath();
+
+    QString path =
+        QFileDialog::getExistingDirectory(nullptr, tr("Select UO directory"), clientPath);
+
+    if (path.length())
+    {
+        ui->le_ServerClientPath->setText(path);
     }
 }
 
@@ -860,26 +907,31 @@ void OrionLauncherWindow::runProgram(const QString &exePath, const QString &dire
     process->start(exePath);
 }
 
+void OrionLauncherWindow::on_pb_GenerateConfig_clicked()
+{
+    writeCfg();
+}
+
 void OrionLauncherWindow::on_pb_Launch_clicked()
 {
-    auto directoryPath = ui->cb_OrionPath->currentText();
-    if (!QFile::exists(ui->cb_OrionPath->currentText() + "/client.cuo"))
+    const auto directoryPath = ui->cb_OrionPath->currentText();
+    if (!ui->lw_ServerList->count())
     {
-        QString configErrorText = "You miss file 'client.cuo'!\nYou must create it "
-                                  "with Configuration Editor.";
-
-        if (QFile::exists(directoryPath + "/configurationeditor" EXE_EXTENSION))
-            configErrorText += "\nPress ok to start the tool.";
-
-        QMessageBox::critical(this, "Configuration error!", configErrorText);
-        on_pb_ConfigureClientVersion_clicked();
+        QMessageBox::critical(this, "Error", tr("Configuration not found."));
+        ui->tw_Server->setCurrentIndex(1);
         return;
     }
 
     auto serverItem = static_cast<CServerListItem *>(ui->lw_ServerList->currentItem());
     if (serverItem == nullptr)
     {
-        QMessageBox::critical(this, tr("Launch error"), tr("Server is not selected!"));
+        QMessageBox::critical(this, tr("Error"), tr("Please select a configuration profile!"));
+        return;
+    }
+
+    if (!QFile::exists(directoryPath + "/OrionUO.cfg"))
+    {
+        on_pb_GenerateConfig_clicked();
         return;
     }
 
@@ -953,8 +1005,6 @@ void OrionLauncherWindow::on_pb_Launch_clicked()
         directoryPath += "/map";
         runProgram(directoryPath + "/enhancedmap" EXE_EXTENSION, directoryPath);
     }
-#else
-    ui->cb_LaunchRunUOAM->setEnabled(false);
 #endif
 
     if (ui->cb_LaunchCloseAfterLaunch->isChecked())
@@ -1100,7 +1150,6 @@ void OrionLauncherWindow::on_cb_OrionPath_currentIndexChanged(int index)
     {
         if (ui->cb_CheckUpdates->isChecked())
             on_pb_CheckUpdates_clicked();
-        onCheckClientCuoTimer();
     }
 }
 
@@ -1124,7 +1173,7 @@ void OrionLauncherWindow::onUpdatesListReceived(const QList<CFileInfo> &list)
     }
 
     if (ui->lw_AvailableUpdates->count())
-        ui->tw_Main->setCurrentIndex(2);
+        ui->tw_Main->setCurrentIndex(1);
 
     ui->pb_CheckUpdates->setEnabled(true);
     ui->pb_ApplyUpdates->setEnabled(true);
@@ -1271,14 +1320,6 @@ void OrionLauncherWindow::on_pb_ApplyUpdates_clicked()
     }
 }
 
-void OrionLauncherWindow::on_pb_ConfigureClientVersion_clicked()
-{
-    auto directoryPath = ui->cb_OrionPath->currentText();
-    auto path = directoryPath + "/configurationeditor" EXE_EXTENSION;
-    if (QFile::exists(path))
-        runProgram(path, directoryPath);
-}
-
 void OrionLauncherWindow::on_pb_RestoreSelectedVersion_clicked()
 {
     const auto item = static_cast<CBackupInfoListWidgetItem *>(ui->lw_Backups->currentItem());
@@ -1321,8 +1362,7 @@ void OrionLauncherWindow::on_pb_ShowChangelog_clicked()
 
     emit m_ChangelogForm->changelogReceived("Loading...");
 
-    auto lang = ui->cb_ChangelogLanguage->currentText();
-    m_UpdateManager->getChangelog("Downloads/OrionChangelog" + lang + ".html");
+    m_UpdateManager->getChangelog("Downloads/OrionChangelogEN.html");
 }
 
 void OrionLauncherWindow::on_lw_Backups_doubleClicked(const QModelIndex &index)

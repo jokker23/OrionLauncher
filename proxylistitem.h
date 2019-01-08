@@ -19,7 +19,6 @@ private:
     bool m_Socks5 = false;
     QString m_Account;
     QString m_Password;
-    bool m_Encrypted = false;
 
 public:
     CProxyListItem(const QString &name);
@@ -29,8 +28,7 @@ public:
         const QString &port,
         const bool &socks5,
         const QString &account,
-        const QString &password,
-        const bool &encrypted);
+        const QString &password);
     virtual ~CProxyListItem() {}
 
     QString GetAddress() const { return m_Address; }
@@ -47,7 +45,4 @@ public:
 
     QString GetPassword() const { return m_Password; }
     void SetPassword(const QString &password) { m_Password = password; }
-
-    bool GetEncrypted() const { return m_Encrypted; }
-    void SetEncrypted(const bool &encrypted) { m_Encrypted = encrypted; }
 };

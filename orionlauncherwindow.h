@@ -48,6 +48,7 @@ private slots:
     void on_pb_ProxyRemove_clicked();
     void on_tb_SetOrionPath_clicked();
     void on_pb_Launch_clicked();
+    void on_pb_GenerateConfig_clicked();
     void on_cb_LaunchAutologin_clicked();
     void on_cb_LaunchSavePassword_clicked();
     void on_cb_LaunchSaveAero_clicked();
@@ -61,7 +62,6 @@ private slots:
     void on_pb_CheckUpdates_clicked();
     void on_cb_OrionPath_currentIndexChanged(int index);
     void on_pb_ApplyUpdates_clicked();
-    void on_pb_ConfigureClientVersion_clicked();
     void on_pb_RestoreSelectedVersion_clicked();
     void on_pb_ShowChangelog_clicked();
     void on_lw_Backups_doubleClicked(const QModelIndex &index);
@@ -71,12 +71,12 @@ private slots:
     void on_rb_OrionFeaturesPOL_clicked();
     void on_pb_Process_clicked();
     void on_tb_SetManifestPath_clicked();
+    void on_tb_SetClientPath_clicked();
 
     void onUpdatesListReceived(const QList<CFileInfo> &list);
     void onBackupsListReceived(const QList<CFileInfo> &list);
     void onFileReceived(const QString &name);
     void onUpdatesTimer();
-    void onCheckClientCuoTimer();
     void onDownloadProgress(qint64 bytesRead, qint64 totalBytes);
 
     void unzipPackage(const QString &filename, const QString &toPath);
@@ -97,12 +97,12 @@ private:
     ChangelogForm *m_ChangelogForm = nullptr;
     UpdateManager *m_UpdateManager = nullptr;
     QTimer m_UpdatesTimer;
-    QTimer m_CheckClientCuoTimer;
 
     void updateServerFields(const int &index);
     QString boolToText(const bool &value);
 
     bool rawStringToBool(QString value);
+    void writeCfg();
     void saveProxyList();
     void saveServerList();
     void loadProxyList();

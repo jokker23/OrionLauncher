@@ -18,11 +18,13 @@ private:
     QString m_Account;
     QString m_Password;
     QString m_Character;
+    QString m_ClientVersion;
+    QString m_ClientPath;
+    QString m_ClientType;
     QString m_Command;
-    bool m_Encrypted{ false };
-    bool m_UseProxy{ false };
     QString m_Proxy;
-
+    bool m_UseProxy{ false };
+    bool m_UseCrypt{ false };
     bool m_OptionAutologin{ false };
     bool m_OptionSavePassword{ false };
     bool m_OptionSaveAero{ false };
@@ -36,8 +38,7 @@ public:
         const QString &address,
         const QString &account,
         const QString &password,
-        const QString &character,
-        const bool &encrypted);
+        const QString &character);
     virtual ~CServerListItem() {}
 
     QString GetAddress() const { return m_Address; }
@@ -52,17 +53,59 @@ public:
     QString GetCharacter() const { return m_Character; }
     void SetCharacter(const QString &character) { m_Character = character; }
 
+    QString GetClientVersion() const { return m_ClientVersion; }
+    void SetClientVersion(const QString &clientVersion) { m_ClientVersion = clientVersion; }
+
+    QString GetClientPath() const { return m_ClientPath; }
+    void SetClientPath(const QString &clientPath) { m_ClientPath = clientPath; }
+
+    QString GetClientTypeString() const { return m_ClientType; }
+    void SetClientTypeFromString(const QString &clientType) { m_ClientType = clientType.toLower(); }
+    int GetClientType()
+    {
+        if (m_ClientType == "t2a")
+            return 1;
+        if (m_ClientType == "re")
+            return 2;
+        if (m_ClientType == "td")
+            return 3;
+        if (m_ClientType == "lbr")
+            return 4;
+        if (m_ClientType == "aos")
+            return 5;
+        if (m_ClientType == "se")
+            return 6;
+        if (m_ClientType == "sa")
+            return 7;
+        return 0;
+    }
+    void SetClientType(int index)
+    {
+        switch (index)
+        {
+            case 1: m_ClientType = "t2a"; break;
+            case 2: m_ClientType = "re"; break;
+            case 3: m_ClientType = "td"; break;
+            case 4: m_ClientType = "lbr"; break;
+            case 5: m_ClientType = "aos"; break;
+            case 6: m_ClientType = "se"; break;
+            case 7: m_ClientType = "sa"; break;
+            default:
+                break;
+        }
+    }
+
     QString GetCommand() const { return m_Command; }
     void SetCommand(const QString &command) { m_Command = command; }
 
-    bool GetEncrypted() const { return m_Encrypted; }
-    void SetEncrypted(const bool &encrypted) { m_Encrypted = encrypted; }
+    QString GetProxy() const { return m_Proxy; }
+    void SetProxy(const QString &proxy) { m_Proxy = proxy; }
 
     bool GetUseProxy() const { return m_UseProxy; }
     void SetUseProxy(const bool &useProxy) { m_UseProxy = useProxy; }
 
-    QString GetProxy() const { return m_Proxy; }
-    void SetProxy(const QString &proxy) { m_Proxy = proxy; }
+    bool GetUseCrypt() const { return m_UseCrypt; }
+    void SetUseCrypt(const bool &useCrypt) { m_UseCrypt = useCrypt; }
 
     bool GetOptionAutologin() const { return m_OptionAutologin; }
     void SetOptionAutologin(const bool &autologin) { m_OptionAutologin = autologin; }
