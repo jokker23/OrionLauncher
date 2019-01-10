@@ -20,7 +20,14 @@ public:
     QString ZipFileName;
     QByteArray Hash;
     QByteArray ZipHash;
-    bool UODir;
+};
+
+class CReleaseInfo
+{
+public:
+    QString Name;
+    QString Version;
+    QList<CFileInfo> FileList;
 };
 
 class CChangelogInfo
@@ -46,17 +53,17 @@ public:
     CFileInfo m_Info;
 };
 
-class CBackupInfoListWidgetItem : public QListWidgetItem
+class CPackageInfoListWidgetItem : public QListWidgetItem
 {
 public:
-    CBackupInfoListWidgetItem(const CFileInfo &backup)
+    CPackageInfoListWidgetItem(const CReleaseInfo &package)
         : QListWidgetItem()
-        , m_Backup(backup)
+        , m_Package(package)
     {
-        setText(backup.Name);
+        setText(package.Name + " " + package.Version);
     }
 
-    virtual ~CBackupInfoListWidgetItem() {}
+    virtual ~CPackageInfoListWidgetItem() {}
 
-    CFileInfo m_Backup;
+    CReleaseInfo m_Package;
 };

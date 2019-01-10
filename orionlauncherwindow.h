@@ -64,17 +64,18 @@ private slots:
     void on_pb_ApplyUpdates_clicked();
     void on_pb_RestoreSelectedVersion_clicked();
     void on_pb_ShowChangelog_clicked();
-    void on_lw_Backups_doubleClicked(const QModelIndex &index);
+    void on_lw_Packages_doubleClicked(const QModelIndex &index);
     void on_lw_OrionFeaturesOptions_clicked(const QModelIndex &index);
     void on_rb_OrionFeaturesSphere_clicked();
     void on_rb_OrionFeaturesRunUO_clicked();
     void on_rb_OrionFeaturesPOL_clicked();
     void on_pb_Process_clicked();
-    void on_tb_SetManifestPath_clicked();
+    void on_tb_SetReleasePath_clicked();
     void on_tb_SetClientPath_clicked();
+    void on_cb_Beta_clicked();
 
     void onUpdatesListReceived(const QList<CFileInfo> &list);
-    void onBackupsListReceived(const QList<CFileInfo> &list);
+    void onPackageListReceived(const QMap<QString, QMap<QString, CReleaseInfo>> &packages);
     void onFileReceived(const QString &name);
     void onUpdatesTimer();
     void onDownloadProgress(qint64 bytesRead, qint64 totalBytes);
@@ -83,7 +84,7 @@ private slots:
 
 signals:
     void updatesListReceived(const QList<CFileInfo> &);
-    void backupsListReceived(const QList<CFileInfo> &);
+    void packageListReceived(const QMap<QString, QMap<QString, CReleaseInfo>> &);
     void changelogReceived(const QString &);
     void fileReceived(const QDir &);
     void autoUpdateProgress(int);

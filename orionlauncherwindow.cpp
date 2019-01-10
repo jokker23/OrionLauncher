@@ -26,12 +26,60 @@
 
 #define LAUNCHER_VERSION "1.3.0"
 #define LAUNCHER_TITLE "Orion Launcher " LAUNCHER_VERSION
+
+#if defined(QT_NO_DEBUG)
 #define UPDATER_HOST "http://www.orionuo.com/"
+#else
+#define UPDATER_HOST "http://localhost:8089/"
+#endif
 
 #if _WINDOWS
 #define EXE_EXTENSION ".exe"
 #else
 #define EXE_EXTENSION ""
+#endif
+
+#if _WINDOWS
+#define GetPlatformName() "win64" // FIXME
+#endif
+
+#if __linux__
+static QString distroName;
+
+QString GetPlatformName()
+{
+    if (!distroName.isEmpty())
+        return distroName;
+
+    QString distro;
+    distroName = "ubuntu";
+    QFile file("/etc/lsb-release");
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QTextStream in(&file);
+        while (!in.atEnd())
+        {
+           auto line = in.readLine().split("=");
+           if (line.count() == 2 && line[0] == "DISTRIB_ID")
+           {
+               distro = line[1];
+               distroName = line[1].toLower();
+               break;
+           }
+        }
+    }
+
+    if (distroName != "manjarolinux" && distroName != "ubuntu")
+    {
+        QMessageBox::warning(nullptr, "Warning", QString("The %1 distribution is unsupported, you may find issues trying to use this binary").arg(distro));
+    }
+
+    return distroName;
+}
+#endif
+
+#if __APPLE__
+#define GetPlatformName() "osx" // FIXME
 #endif
 
 OrionLauncherWindow::OrionLauncherWindow(QWidget *parent)
@@ -51,9 +99,9 @@ OrionLauncherWindow::OrionLauncherWindow(QWidget *parent)
         &ChangelogForm::onChangelogReceived);
     connect(
         m_UpdateManager,
-        &UpdateManager::backupsListReceived,
+        &UpdateManager::packageListReceived,
         this,
-        &OrionLauncherWindow::onBackupsListReceived);
+        &OrionLauncherWindow::onPackageListReceived);
     connect(
         m_UpdateManager,
         &UpdateManager::updatesListReceived,
@@ -72,9 +120,9 @@ OrionLauncherWindow::OrionLauncherWindow(QWidget *parent)
         SLOT(onUpdatesListReceived(const QList<CUpdateInfo> &)));
     connect(
         this,
-        SIGNAL(backupsListReceived(const QList<CBackupInfo> &)),
+        SIGNAL(packageListReceived(const QMap<QString, QMap<QString, CReleaseInfo>> &)),
         this,
-        SLOT(onBackupsListReceived(const QList<CBackupInfo> &)));
+        SLOT(onPackageListReceived(const QMap<QString, QMap<QString, CReleaseInfo>> &)));
     connect(this, SIGNAL(fileReceived(const QDir &)), this, SLOT(onFileReceived(const QDir &)));
     connect(&m_UpdatesTimer, SIGNAL(timeout()), this, SLOT(onUpdatesTimer()));
 
@@ -465,8 +513,8 @@ void OrionLauncherWindow::writeCfg()
     {
         return;
     }
-
-    QFile file(QDir::currentPath() + "/OrionUO.cfg");
+    const auto clientPath = ui->cb_OrionPath->currentText();
+    QFile file(clientPath + "/OrionUO.cfg");
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QTextStream stream(&file);
@@ -474,7 +522,7 @@ void OrionLauncherWindow::writeCfg()
         if (item->GetOptionSavePassword())
         {
             stream << "AcctPassword=" << item->GetPassword() << endl;
-            stream << "RememberActPW=yes" << endl;
+            stream << "RememberAcctPW=yes" << endl;
         }
         stream << "AutoLogin=" << (item->GetOptionFastLogin() ? "yes" : "no") << endl;
         stream << "ClientType=" << item->GetClientTypeString() << endl;
@@ -543,6 +591,7 @@ void OrionLauncherWindow::saveServerList()
         writer.writeAttribute("checkupdates", boolToText(ui->cb_CheckUpdates->isChecked()));
         writer.writeAttribute(
             "noclientwarnings", boolToText(ui->cb_NoClientWarnings->isChecked()));
+        writer.writeAttribute("beta", boolToText(ui->cb_Beta->isChecked()));
 
         for (int i = 0; i < ui->cb_OrionPath->count(); i++)
         {
@@ -694,6 +743,10 @@ void OrionLauncherWindow::loadServerList()
                     if (attributes.hasAttribute("noclientwarnings"))
                         ui->cb_NoClientWarnings->setChecked(
                             rawStringToBool(attributes.value("noclientwarnings").toString()));
+
+                    if (attributes.hasAttribute("beta"))
+                        ui->cb_Beta->setChecked(
+                            rawStringToBool(attributes.value("beta").toString()));
                 }
                 else if (reader.name() == "clientpath")
                 {
@@ -812,20 +865,20 @@ void OrionLauncherWindow::on_tb_SetClientPath_clicked()
     }
 }
 
-void OrionLauncherWindow::on_tb_SetManifestPath_clicked()
+void OrionLauncherWindow::on_tb_SetReleasePath_clicked()
 {
-    auto path = ui->le_ManifestFile->text();
+    auto path = ui->le_ReleasePath->text();
     if (!path.length())
         path = QDir::currentPath();
 
-    path = QFileDialog::getExistingDirectory(nullptr, tr("Select Cache directory"), path);
+    path = QFileDialog::getExistingDirectory(nullptr, tr("Select release directory"), path);
     if (path.length())
     {
-        auto fullname = path + "/OrionUpdate.html";
+        auto fullname = path + "/win64.manifest.xml";
         auto fi = QFileInfo(fullname);
         if (fi.exists())
         {
-            ui->le_ManifestFile->setText(fullname);
+            ui->le_ReleasePath->setText(path);
             ui->pb_Process->setEnabled(true);
         }
         else
@@ -839,15 +892,15 @@ void OrionLauncherWindow::on_pb_Process_clicked()
 {
     if (ui->pb_Process->isEnabled())
     {
-        // FIXME: dirty work for now to get it done
-        // get this properly done in the background
         ui->pb_Process->setEnabled(false);
-        m_UpdateManager->writeManifest(ui->le_ManifestFile->text());
-        QMessageBox msgBox;
-        msgBox.setText("Done.");
-        msgBox.exec();
+        QMessageBox::information(this, "Publishing", tr("Please wait, this may take some time."));
+        const auto &path = ui->le_ReleasePath->text();
+        const auto &plat = ui->cb_ReleasePlatform->currentText();
+        const auto &prod = ui->cb_ReleaseProduct->currentText();
+        const auto &ver = ui->le_ReleaseVersion->text();
+        m_UpdateManager->generateUpdate(path, plat, prod, ver, this);
+        QMessageBox::information(this, "Publishing", tr("Done!"));
         ui->pb_Process->setEnabled(true);
-        //m_UpdateManager->generateManifestData(path);
     }
 }
 
@@ -914,7 +967,7 @@ void OrionLauncherWindow::on_pb_GenerateConfig_clicked()
 
 void OrionLauncherWindow::on_pb_Launch_clicked()
 {
-    const auto directoryPath = ui->cb_OrionPath->currentText();
+    const auto clientPath = ui->cb_OrionPath->currentText();
     if (!ui->lw_ServerList->count())
     {
         QMessageBox::critical(this, "Error", tr("Configuration not found."));
@@ -929,13 +982,12 @@ void OrionLauncherWindow::on_pb_Launch_clicked()
         return;
     }
 
-    if (!QFile::exists(directoryPath + "/OrionUO.cfg"))
+    if (!QFile::exists(clientPath + "/OrionUO.cfg"))
     {
         on_pb_GenerateConfig_clicked();
-        return;
     }
 
-    auto program = ui->cb_OrionPath->currentText() + "/orionuo" EXE_EXTENSION;
+    auto program = ui->cb_OrionPath->currentText() + "/OrionUO" EXE_EXTENSION;
     auto command = ui->le_CommandLine->text();
     if (ui->cb_LaunchFastLogin->isChecked())
         command += " -fastlogin";
@@ -997,13 +1049,13 @@ void OrionLauncherWindow::on_pb_Launch_clicked()
 
     if (command.length())
         program += " " + command;
-    runProgram(program, directoryPath);
+    runProgram(program, clientPath);
 
 #if _WINDOWS
     if (ui->cb_LaunchRunUOAM->isChecked())
     {
-        directoryPath += "/map";
-        runProgram(directoryPath + "/enhancedmap" EXE_EXTENSION, directoryPath);
+        clientPath += "/map";
+        runProgram(clientPath + "/enhancedmap" EXE_EXTENSION, clientPath);
     }
 #endif
 
@@ -1048,6 +1100,11 @@ void OrionLauncherWindow::on_cb_LaunchRunUOAM_clicked()
     auto item = static_cast<CServerListItem *>(ui->lw_ServerList->currentItem());
     if (item != nullptr)
         item->SetOptionRunUOAM(ui->cb_LaunchRunUOAM->isChecked());
+}
+
+void OrionLauncherWindow::on_cb_Beta_clicked()
+{
+    on_pb_CheckUpdates_clicked();
 }
 
 void OrionLauncherWindow::on_lw_OAFeaturesOptions_clicked(const QModelIndex &index)
@@ -1156,16 +1213,16 @@ void OrionLauncherWindow::on_cb_OrionPath_currentIndexChanged(int index)
 void OrionLauncherWindow::onUpdatesListReceived(const QList<CFileInfo> &list)
 {
     ui->lw_AvailableUpdates->clear();
-    const auto directoryPath = ui->cb_OrionPath->currentText();
+    const auto clientPath = ui->cb_OrionPath->currentText();
 
     ui->pb_UpdateProgress->setValue(0);
     int n = 0;
     for (const auto &info : list)
     {
-        const auto fullPath =
-            (info.UODir ? directoryPath : qApp->applicationDirPath()) + "/" + info.Name;
+        const auto fullPath = clientPath + "/" + info.Name;
         const auto hash = m_UpdateManager->getHash(fullPath);
-        const bool wantUpdate = (info.Hash.length() && !hash.isEmpty() && info.Hash != hash);
+        //const bool wantUpdate = (info.Hash.length() && !hash.isEmpty() && info.Hash != hash);
+        const bool wantUpdate = info.Hash.length() && info.Hash != hash; // even if we don't have the file locally
         if (wantUpdate)
             ui->lw_AvailableUpdates->addItem(new CUpdateInfoListWidgetItem(info));
         n++;
@@ -1177,17 +1234,25 @@ void OrionLauncherWindow::onUpdatesListReceived(const QList<CFileInfo> &list)
 
     ui->pb_CheckUpdates->setEnabled(true);
     ui->pb_ApplyUpdates->setEnabled(true);
-    ui->lw_Backups->setEnabled(true);
+    ui->lw_Packages->setEnabled(true);
     ui->pb_RestoreSelectedVersion->setEnabled(true);
     ui->pb_ShowChangelog->setEnabled(true);
     ui->pb_UpdateProgress->setValue(100);
 }
 
-void OrionLauncherWindow::onBackupsListReceived(const QList<CFileInfo> &list)
+void OrionLauncherWindow::onPackageListReceived(const QMap<QString, QMap<QString, CReleaseInfo>> &packages)
 {
-    ui->lw_Backups->clear();
-    for (const auto &info : list)
-        ui->lw_Backups->addItem(new CBackupInfoListWidgetItem(info));
+    ui->lw_Packages->clear();
+    for (const auto &p : packages.keys())
+    {
+        if (p == "all")
+            continue;
+
+        for (const auto &v : packages[p].keys())
+        {
+            ui->lw_Packages->addItem(new CPackageInfoListWidgetItem(packages[p][v]));
+        }
+    }
 }
 
 void OrionLauncherWindow::on_pb_CheckUpdates_clicked()
@@ -1197,13 +1262,14 @@ void OrionLauncherWindow::on_pb_CheckUpdates_clicked()
 
     ui->pb_CheckUpdates->setEnabled(false);
     ui->pb_ApplyUpdates->setEnabled(false);
-    ui->lw_Backups->setEnabled(false);
+    ui->lw_Packages->setEnabled(false);
     ui->pb_RestoreSelectedVersion->setEnabled(false);
     ui->pb_ShowChangelog->setEnabled(false);
     ui->pb_UpdateProgress->setValue(0);
     ui->lw_AvailableUpdates->clear();
-    ui->lw_Backups->clear();
-    m_UpdateManager->getManifest("Downloads/OrionUpdate.html");
+    ui->lw_Packages->clear();
+    auto beta = ui->cb_Beta->isChecked() ? "-beta" : "";
+    m_UpdateManager->getManifest(QString("release/%1%2.manifest.xml").arg(GetPlatformName()).arg(beta));
 }
 
 void OrionLauncherWindow::onFileReceived(const QString &name)
@@ -1215,7 +1281,7 @@ void OrionLauncherWindow::onFileReceived(const QString &name)
     {
         ui->pb_CheckUpdates->setEnabled(true);
         ui->pb_ApplyUpdates->setEnabled(true);
-        ui->lw_Backups->setEnabled(true);
+        ui->lw_Packages->setEnabled(true);
         ui->pb_RestoreSelectedVersion->setEnabled(true);
         ui->pb_ShowChangelog->setEnabled(true);
         ui->pb_UpdateProgress->setValue(100);
@@ -1265,11 +1331,11 @@ void OrionLauncherWindow::on_pb_ApplyUpdates_clicked()
 
     ui->pb_CheckUpdates->setEnabled(false);
     ui->pb_ApplyUpdates->setEnabled(false);
-    ui->lw_Backups->setEnabled(false);
+    ui->lw_Packages->setEnabled(false);
     ui->pb_RestoreSelectedVersion->setEnabled(false);
     ui->pb_ShowChangelog->setEnabled(false);
 
-    const auto directoryPath = ui->cb_OrionPath->currentText();
+    const auto clientPath = ui->cb_OrionPath->currentText();
     m_LauncherFoundInUpdates = false;
     m_FilesToUpdateCount = 0;
 
@@ -1288,15 +1354,12 @@ void OrionLauncherWindow::on_pb_ApplyUpdates_clicked()
     {
         for (auto item : updateList)
         {
-            auto path = directoryPath;
-            if (!item->m_Info.UODir)
+            auto path = clientPath;
+            if (item->text() == "orionlauncher" EXE_EXTENSION)
             {
-                if (item->text() == "orionlauncher" EXE_EXTENSION)
-                {
-                    m_LauncherFoundInUpdates = true;
-                }
-                path = qApp->applicationDirPath();
+                m_LauncherFoundInUpdates = true;
             }
+            path = qApp->applicationDirPath();
 
             ui->pb_UpdateProgress->setValue(0);
             const auto src = item->m_Info.ZipFileName;
@@ -1306,14 +1369,14 @@ void OrionLauncherWindow::on_pb_ApplyUpdates_clicked()
                 onFileReceived(f);
             };
             const bool silent = true;
-            m_UpdateManager->getFile("Downloads", src, cb, this, silent);
+            m_UpdateManager->getFile("update", src, item->m_Info, cb, this, silent);
         }
     }
     else
     {
         ui->pb_CheckUpdates->setEnabled(true);
         ui->pb_ApplyUpdates->setEnabled(true);
-        ui->lw_Backups->setEnabled(true);
+        ui->lw_Packages->setEnabled(true);
         ui->pb_RestoreSelectedVersion->setEnabled(true);
         ui->pb_ShowChangelog->setEnabled(true);
         ui->pb_UpdateProgress->setValue(100);
@@ -1322,18 +1385,21 @@ void OrionLauncherWindow::on_pb_ApplyUpdates_clicked()
 
 void OrionLauncherWindow::on_pb_RestoreSelectedVersion_clicked()
 {
-    const auto item = static_cast<CBackupInfoListWidgetItem *>(ui->lw_Backups->currentItem());
+    const auto item = static_cast<CPackageInfoListWidgetItem *>(ui->lw_Packages->currentItem());
     if (item == nullptr)
         return;
 
-    ui->pb_UpdateProgress->setValue(0);
-    const auto src = item->m_Backup.ZipFileName;
-    const auto dst = ui->cb_OrionPath->currentText();
-    auto cb = [this, dst](const QString &f) {
-        unzipPackage(f, dst);
-        onFileReceived(f);
-    };
-    m_UpdateManager->getFile("Downloads", src, cb, this);
+    for (auto file : item->m_Package.FileList)
+    {
+        ui->pb_UpdateProgress->setValue(0);
+        const auto src = file.ZipFileName;
+        const auto dst = ui->cb_OrionPath->currentText();
+        auto cb = [this, dst](const QString &f) {
+            unzipPackage(f, dst);
+            onFileReceived(f);
+        };
+        m_UpdateManager->getFile("update", src, file, cb, this);
+    }
 }
 
 void OrionLauncherWindow::unzipPackage(const QString &filename, const QString &toPath)
@@ -1341,8 +1407,24 @@ void OrionLauncherWindow::unzipPackage(const QString &filename, const QString &t
     QZipReader zipReader{ filename };
     QDir dir{ toPath };
     const auto path = dir.canonicalPath();
+    for (auto it : zipReader.fileInfoList())
+    {
+        auto target = QFileInfo(path + "/" + it.filePath).absolutePath();
+        QDir(path).mkpath(target);
+    }
     if (!zipReader.extractAll(path))
+    {
         qDebug() << "Failed to unpack file:" << filename;
+    }
+#if !_WINDOWS
+    for (auto it : zipReader.fileInfoList())
+    {
+        // FIXME: set executable only what was executable before packaging
+        QFile f(path + "/" + it.filePath);
+        auto p = f.permissions();
+        f.setPermissions(p | QFileDevice::ExeOwner);
+    }
+#endif
     zipReader.close();
 }
 
@@ -1362,10 +1444,10 @@ void OrionLauncherWindow::on_pb_ShowChangelog_clicked()
 
     emit m_ChangelogForm->changelogReceived("Loading...");
 
-    m_UpdateManager->getChangelog("Downloads/OrionChangelogEN.html");
+    m_UpdateManager->getChangelog("release/changelog.html");
 }
 
-void OrionLauncherWindow::on_lw_Backups_doubleClicked(const QModelIndex &index)
+void OrionLauncherWindow::on_lw_Packages_doubleClicked(const QModelIndex &index)
 {
     Q_UNUSED(index);
     on_pb_RestoreSelectedVersion_clicked();

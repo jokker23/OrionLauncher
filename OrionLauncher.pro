@@ -13,18 +13,22 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         orionlauncherwindow.cpp \
-    serverlistitem.cpp \
-    proxylistitem.cpp \
-    changelogform.cpp \
-    updatemanager.cpp
+        serverlistitem.cpp \
+        proxylistitem.cpp \
+        changelogform.cpp \
+        updatemanager.cpp \
+    xxhash.cpp
 
 HEADERS  += orionlauncherwindow.h \
-    serverlistitem.h \
-    proxylistitem.h \
-    qzipreader_p.h \
-    changelogform.h \
-    updatemanager.h \
-    updateinfo.h
+        serverlistitem.h \
+        proxylistitem.h \
+        qzipreader_p.h \
+        changelogform.h \
+        updatemanager.h \
+        updateinfo.h \
+        xxhash.h \
+    qzipwriter_p.h
+
 
 FORMS    += orionlauncherwindow.ui \
     changelogform.ui

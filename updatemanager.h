@@ -31,15 +31,16 @@ class UpdateManager : public QObject
     QString cachePath;
     QString host;
     QString userAgent;
-    QList<CFileInfo> backupList;
-    QList<CFileInfo> updateList;
+    QMap<QString, QMap<QString, CReleaseInfo>> releaseList; // product,version,files
 
     template <typename F>
     void get(const QString &url, F func);
 
     QByteArray readReply(QNetworkReply *reply);
-    void ParseManifest(const QString &xml);
-    bool validateFile(const QFile &filename);
+    void readManifest(const QString &xmlName);
+    bool validateFile(const QString &filename, const QByteArray &hash) const;
+    QMap<QString, QString> readCache(const QString &path) const;
+    void writeCache(const QString &path, QMap<QString, QString> cache) const;
 
 public:
     explicit UpdateManager(
@@ -47,21 +48,20 @@ public:
     virtual ~UpdateManager();
 
     void setCacheDirectory(const QString &str);
-    QByteArray getHash(const QString &fileName);
+    QByteArray getHash(const QString &fileName) const;
     void writeManifest(const QString &filename);
-    void generateManifestData(const QString &path);
+    void generateUpdate(const QString &path, const QString &plat, const QString &product, const QString &version, QWidget *parent);
 
     void getManifest(const QString &url);
     void getChangelog(const QString &url);
-    void getFile(
-        const QString &filename,
-        const QString &url,
+    void getFile(const QString &filename,
+        const QString &url, const CFileInfo &info,
         std::function<void(const QString &)> finishedCb,
         QWidget *parent = nullptr,
         bool silent = false);
 
 signals:
-    void backupsListReceived(QList<CFileInfo> &);
+    void packageListReceived(QMap<QString, QMap<QString, CReleaseInfo>> &);
     void updatesListReceived(QList<CFileInfo> &);
     void changelogReceived(const QString &);
     void downloadProgress(qint64, qint64);

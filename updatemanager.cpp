@@ -5,6 +5,13 @@
 */
 #include "updatemanager.h"
 
+#define USE_XXHASH 1
+
+#if USE_XXHASH
+#include "xxhash.h"
+#endif
+
+#include <QProgressDialog>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QDirIterator>
@@ -12,6 +19,8 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QXmlStreamReader>
+#include <QTemporaryFile>
+#include "qzipwriter_p.h"
 
 ProgressDialog::ProgressDialog(const QString &filename, QWidget *parent)
     : QProgressDialog(parent)
@@ -53,16 +62,26 @@ void UpdateManager::setCacheDirectory(const QString &cachePath)
     this->cachePath = cachePath;
 }
 
-QByteArray UpdateManager::getHash(const QString &fileName)
+QByteArray UpdateManager::getHash(const QString &fileName) const
 {
     QFile f(fileName);
     if (f.open(QFile::ReadOnly))
     {
+#if USE_XXHASH
+        auto len = f.size();
+        auto ptr = f.map(0, len);
+        auto hash = XXH64(static_cast<void *>(ptr), static_cast<size_t>(len), 0x2593);
+        QByteArray byteArray;
+        QDataStream stream(&byteArray, QIODevice::WriteOnly);
+        stream << hash;
+        return byteArray;
+#else
         QCryptographicHash hash(QCryptographicHash::Sha1);
         if (hash.addData(&f))
         {
             return hash.result();
         }
+#endif
     }
     return QByteArray();
 }
@@ -71,9 +90,9 @@ void UpdateManager::getManifest(const QString &endpoint)
 {
     get(endpoint, [this](QNetworkReply *reply) {
         const auto data = readReply(reply);
-        ParseManifest(data);
-        emit backupsListReceived(backupList);
-        emit updatesListReceived(updateList);
+        readManifest(data);
+        emit packageListReceived(releaseList);
+        emit updatesListReceived(releaseList["all"]["incremental"].FileList);
     });
 }
 
@@ -96,26 +115,28 @@ void UpdateManager::get(const QString &endpoint, F func)
     connect(reply, &QNetworkReply::finished, this, [=]() { func(reply); });
 }
 
-bool UpdateManager::validateFile(const QFile &)
+bool UpdateManager::validateFile(const QString &filename, const QByteArray &hash) const
 {
-    // validate file checksum based on entries in backupInfo or updateInfo
-    return true;
+    return getHash(filename) == hash;
 }
 
 void UpdateManager::getFile(
     const QString &endpoint,
     const QString &filename,
+    const CFileInfo &info,
     std::function<void(const QString &)> finishedCb,
     QWidget *parent,
     bool silent)
 {
     QString dir{ cachePath + "/" + filename };
     auto file = new QFile{ dir };
-    if (file->exists() && validateFile(*file))
+    if (file->exists() && validateFile(dir, info.ZipHash))
     {
         finishedCb(dir);
         return;
     }
+
+    QDir(cachePath + "/").mkdir(QFileInfo(*file).absolutePath());
 
     file->open(QIODevice::WriteOnly);
     const auto url = QUrl(host + endpoint + "/" + filename);
@@ -141,13 +162,15 @@ void UpdateManager::getFile(
             emit downloadProgress(bytesRead, totalBytes);
         });
     connect(
-        reply, &QIODevice::readyRead, this, [file, reply] { file->write(reply->readAll()); });
+        reply, &QIODevice::readyRead, this, [file, reply, info] { file->write(reply->readAll()); });
 
     connect(reply, &QNetworkReply::finished, this, [=] {
         QFileInfo fi;
+        QString filename;
         if (file)
         {
-            fi.setFile(file->fileName());
+            filename = file->fileName();
+            fi.setFile(filename);
             file->close();
             delete file;
         }
@@ -160,7 +183,7 @@ void UpdateManager::getFile(
             return;
         }
 
-        if (validateFile(*file))
+        if (validateFile(filename, info.Hash))
         {
             finishedCb(dir);
         }
@@ -188,58 +211,51 @@ void UpdateManager::streamReadyRead(QNetworkReply *reply, QFile *file)
         file->write(reply->readAll());
 }
 
-void UpdateManager::ParseManifest(const QString &xml)
+void UpdateManager::readManifest(const QString &xmlData)
 {
 #define ReadAttribute(var, name)                                                                   \
     if (attributes.hasAttribute(name))                                                             \
     var = attributes.value(name).toString()
 
-    updateList.clear();
-    backupList.clear();
-    QString tmp;
+    releaseList.clear();
 
-    QXmlStreamReader reader(xml);
+    QString tmp;
+    QString version;
+    QString prod;
+    QXmlStreamReader reader(xmlData);
     while (!reader.atEnd() && !reader.hasError())
     {
         if (reader.isStartElement())
         {
             auto attributes = reader.attributes();
-            if (reader.name().toString().trimmed().toLower() == "meta")
+            if (reader.name().toString().trimmed().toLower() == "release")
             {
+                CReleaseInfo release;
+                ReadAttribute(release.Name, "name");
+                ReadAttribute(release.Version, "version");
+
+                prod = release.Name;
+                version = release.Version;
+                releaseList[prod][version] = release;
+            }
+            else if (reader.name().toString().trimmed().toLower() == "file")
+            {
+                if (version.isEmpty())
+                    return;
+
                 CFileInfo info;
                 ReadAttribute(info.Name, "name");
                 info.Name = info.Name.replace("\\", "/");
-                if (info.Name.length())
-                {
-                    ReadAttribute(tmp, "uodir");
-                    info.UODir = tmp == "yes";
 
-                    ReadAttribute(tmp, "hash");
-                    info.Hash = QByteArray::fromHex(tmp.toLatin1());
+                ReadAttribute(tmp, "hash");
+                info.Hash = QByteArray::fromHex(tmp.toLatin1());
 
-                    ReadAttribute(info.ZipFileName, "filename");
-                    info.ZipFileName = info.ZipFileName.replace("\\", "/");
+                ReadAttribute(info.ZipFileName, "data");
 
-                    ReadAttribute(tmp, "ziphash");
-                    info.ZipHash = QByteArray::fromHex(tmp.toLatin1());
+                ReadAttribute(tmp, "datahash");
+                info.ZipHash = QByteArray::fromHex(tmp.toLatin1());
 
-                    updateList.push_back(info);
-                }
-                else
-                {
-                    ReadAttribute(info.Name, "backup");
-                    info.Name = info.Name.replace("\\", "/");
-                    if (info.Name.length())
-                    {
-                        ReadAttribute(info.ZipFileName, "filename");
-                        info.ZipFileName = info.ZipFileName.replace("\\", "/");
-
-                        ReadAttribute(tmp, "ziphash");
-                        info.ZipHash = QByteArray::fromHex(tmp.toLatin1());
-
-                        backupList.push_back(info);
-                    }
-                }
+                releaseList[prod][version].FileList.push_back(info);
             }
         }
         reader.readNext();
@@ -248,6 +264,8 @@ void UpdateManager::ParseManifest(const QString &xml)
 
 void UpdateManager::writeManifest(const QString &filename)
 {
+    QList<CFileInfo> updateList;
+
     QFile file{ filename };
     file.open(QIODevice::WriteOnly);
     QXmlStreamWriter stream(&file);
@@ -255,60 +273,189 @@ void UpdateManager::writeManifest(const QString &filename)
     stream.setAutoFormatting(true);
     stream.setAutoFormattingIndent(4);
     stream.writeStartDocument();
-    stream.writeStartElement("html");
-    stream.writeStartElement("head");
-    stream.writeStartElement("meta");
-    stream.writeAttribute("http-equiv", "Content-Type");
-    stream.writeAttribute("content", "text/html; charset=UTF-8");
-    stream.writeEndElement(); // meta
-    stream.writeStartElement("meta");
-    stream.writeAttribute("charset", "UTF-8");
-    stream.writeEndElement(); // meta
+    stream.writeStartElement("manifest");
 
-    for (const auto &item : updateList)
+    for (const auto &file : updateList)
     {
-        auto hash = getHash((item.UODir ? cachePath + "/orionuo" : cachePath) + "/" + item.Name);
-        const auto zipHash = getHash(cachePath + "/" + item.ZipFileName);
-
-        stream.writeStartElement("meta");
-        stream.writeAttribute("name", item.Name);
-        stream.writeAttribute("hash", hash.toHex());
-        stream.writeAttribute("filename", item.ZipFileName);
-        stream.writeAttribute("filehash", zipHash.toHex());
-
-        if (item.UODir)
-            stream.writeAttribute("uodir", "yes");
-
-        stream.writeEndElement(); // meta
+        stream.writeStartElement("file");
+        stream.writeAttribute("name", file.Name);
+        stream.writeAttribute("hash", file.Hash.toHex());
+        stream.writeAttribute("data", file.ZipFileName);
+        stream.writeAttribute("datahash", file.ZipHash.toHex());
+        stream.writeEndElement(); // file
     }
 
-    for (auto &item : backupList)
+    for (const auto &prod : releaseList.keys())
     {
-        const auto zipHash = getHash(cachePath + "/" + item.ZipFileName);
+        for (const auto &rel : releaseList[prod])
+        {
+            stream.writeStartElement("release");
+            stream.writeAttribute("name", rel.Name);
+            stream.writeAttribute("version", rel.Version);
 
-        stream.writeStartElement("meta");
-        stream.writeAttribute("backup", item.Name);
-        stream.writeAttribute("filename", item.ZipFileName);
-        stream.writeAttribute("filehash", zipHash.toHex());
-        stream.writeEndElement(); // meta
+            for (const auto &file : rel.FileList)
+            {
+                stream.writeStartElement("file");
+                stream.writeAttribute("name", file.Name);
+                stream.writeAttribute("hash", file.Hash.toHex());
+                stream.writeAttribute("data", file.ZipFileName);
+                stream.writeAttribute("datahash", file.ZipHash.toHex());
+                stream.writeEndElement(); // file
+            }
+            stream.writeEndElement(); // release
+        }
     }
 
-    stream.writeEndElement(); // head
-    stream.writeEndElement(); // html
+    stream.writeEndElement(); // manifest
     stream.writeEndDocument();
 
     file.close();
 }
 
-void UpdateManager::generateManifestData(const QString &path)
+QMap<QString, QString> UpdateManager::readCache(const QString &path) const
 {
-    cachePath = path;
+    QMap<QString, QString> r;
 
-    QDirIterator it{ path, QStringList() << "*.*", QDir::Files, QDirIterator::Subdirectories };
-    while (it.hasNext())
+    QFile file(path + "/cache.txt");
+    if (!file.open(QIODevice::ReadOnly))
+        return r;
+
+    QTextStream in(&file);
+    while(!in.atEnd())
     {
-        // build a new manifest from scratch
-        // change file format to something simpler to generate
-        // change folder structures
+        QString line = in.readLine();
+        QStringList fields = line.split(",");
+        if (fields.length() != 2)
+            continue;
+        r[fields[0]] = fields[1]; // file,hash
+    }
+    return r;
+}
+
+void UpdateManager::writeCache(const QString &path, QMap<QString, QString> cache) const
+{
+    QFile file(path + "/cache.txt");
+    if (!file.open(QIODevice::WriteOnly))
+        return;
+
+    QTextStream out(&file);
+    for (auto e : cache.keys())
+    {
+        out << e << "," << cache.value(e) << endl;
+    }
+}
+
+void UpdateManager::generateUpdate(const QString &path, const QString &plat, const QString &product, const QString &version, QWidget *parent)
+{
+    auto cache = readCache(path + "/" + plat);
+    QMap<QString, QString> changes;
+    QList<CFileInfo> changesInfo;
+    QDir(path).mkdir(path + "/../update/");
+
+    struct Entry
+    {
+        QString srcfile;
+        QString file;
+        QByteArray hash;
+        QString base;
+    };
+
+    auto createEntry = [&](const Entry &e) -> CFileInfo {
+        auto hex = e.hash.toHex();
+        CFileInfo info;
+        info.Name = e.file;
+        info.Hash = e.hash;
+        auto b = QString(hex).right(2);
+        info.ZipFileName = b + "/" + e.base.toLower() + "_" + hex;
+        auto zipFile = path + "/../update/" + info.ZipFileName;
+        QDir(path).mkdir(path + "/../update/" + b);
+        QFile update(zipFile);
+        if (!update.exists())
+        {
+            QZipWriter dst(zipFile);
+            QFile src(e.srcfile);
+            src.open(QFile::ReadOnly);
+            const char *bytes = (const char *)src.map(0, src.size());
+            assert(bytes);
+            QByteArray ba = QByteArray::fromRawData(bytes, int(src.size()));
+            dst.addFile(e.file, ba);
+        }
+        info.ZipHash = getHash(zipFile);
+
+        if (cache[e.file.toLower()] != hex)
+        {
+            bool replaced = false;
+            changes[e.file.toLower()] = hex;
+            for (auto &it : changesInfo)
+            {
+                if (it.Name == info.Name)
+                {
+                    it = info;
+                    replaced = true;
+                }
+            }
+            if (!replaced)
+            {
+                changesInfo.push_back(info);
+            }
+        }
+
+        return info;
+    };
+
+    auto collectEntries = [&](const QString &dirName) -> QList<Entry> {
+        QList<Entry> entries;
+        QDirIterator dir(path + "/" + dirName + "/", QDirIterator::Subdirectories);
+        while (dir.hasNext())
+        {
+            auto srcfile = dir.next();
+            auto fi = dir.fileInfo();
+            if (fi.isDir())
+                continue;
+
+            auto name = fi.fileName();
+            auto file = srcfile;
+            file.remove(path + "/" + dirName + "/");
+
+            auto hash = getHash(srcfile);
+            entries.push_back({srcfile, file, hash, name});
+        }
+        return entries;
+    };
+
+    auto data = collectEntries(plat + "/" + product);
+    auto manifest = path + "/" + plat + ".manifest.xml";
+
+    QFile xml(manifest);
+    QTextStream xmlData(&xml);
+    readManifest(xmlData.readAll());
+
+    changesInfo = releaseList["all"]["incremental"].FileList;
+
+    CReleaseInfo release;
+    release.Name = product;
+    if (plat.endsWith("-beta"))
+        release.Version = version + " (beta)";
+    else
+        release.Version = version;
+    for (auto e : data)
+    {
+        release.FileList.push_back(createEntry(e));
+    }
+    releaseList[product][release.Version] = release;
+
+    releaseList["all"]["incremental"].Name = "all";
+    releaseList["all"]["incremental"].Version = "incremental";
+    releaseList["all"]["incremental"].FileList = changesInfo;
+
+    writeManifest(manifest);
+
+    if (!changes.isEmpty())
+    {
+        for (auto k : changes.keys())
+        {
+            cache[k] = changes[k];
+        }
+        writeCache(path + "/" + plat, cache);
     }
 }
