@@ -1287,14 +1287,16 @@ void OrionLauncherWindow::onFileReceived(const QString &name)
         ui->pb_UpdateProgress->setValue(100);
         m_FilesToUpdateCount = 0;
 #if _WINDOWS
-        if (m_LauncherFoundInUpdates &&
-            QFile::exists(qApp->applicationDirPath() + "/olupd" EXE_EXTENSION))
+        if (m_LauncherFoundInUpdates)
         {
             saveServerList();
             saveProxyList();
-            runProgram(
-                qApp->applicationDirPath() + "/olupd" EXE_EXTENSION " /orionlauncher_udate.zip",
-                qApp->applicationDirPath());
+
+            if (QMessageBox::question(
+                    this,
+                    "Updates notification",
+                    "An update for the launcher is available, do you want to update it now?") != QMessageBox::Yes)
+                return;
             qApp->exit(0);
         }
         else
@@ -1334,8 +1336,6 @@ void OrionLauncherWindow::on_pb_ApplyUpdates_clicked()
     ui->lw_Packages->setEnabled(false);
     ui->pb_RestoreSelectedVersion->setEnabled(false);
     ui->pb_ShowChangelog->setEnabled(false);
-
-    const auto clientPath = ui->cb_OrionPath->currentText();
     m_LauncherFoundInUpdates = false;
     m_FilesToUpdateCount = 0;
 
@@ -1354,16 +1354,14 @@ void OrionLauncherWindow::on_pb_ApplyUpdates_clicked()
     {
         for (auto item : updateList)
         {
-            auto path = clientPath;
-            if (item->text() == "orionlauncher" EXE_EXTENSION)
+            auto dst = ui->cb_OrionPath->currentText();
+            if (item->text().toLower() == "orionlauncher" EXE_EXTENSION || item->m_Info.inLauncher)
             {
                 m_LauncherFoundInUpdates = true;
+                dst = qApp->applicationDirPath();
             }
-            path = qApp->applicationDirPath();
-
             ui->pb_UpdateProgress->setValue(0);
             const auto src = item->m_Info.ZipFileName;
-            const auto dst = ui->cb_OrionPath->currentText();
             auto cb = [this, dst](const QString &f) {
                 unzipPackage(f, dst);
                 onFileReceived(f);

@@ -20,6 +20,7 @@ public:
     QString ZipFileName;
     QByteArray Hash;
     QByteArray ZipHash;
+    bool inLauncher;
 };
 
 class CReleaseInfo

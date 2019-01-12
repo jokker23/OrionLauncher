@@ -219,6 +219,7 @@ void UpdateManager::readManifest(const QString &xmlData)
 
     releaseList.clear();
 
+    bool launcher = false;
     QString tmp;
     QString version;
     QString prod;
@@ -234,6 +235,7 @@ void UpdateManager::readManifest(const QString &xmlData)
                 ReadAttribute(release.Name, "name");
                 ReadAttribute(release.Version, "version");
 
+                launcher = prod == "OrionLauncher";
                 prod = release.Name;
                 version = release.Version;
                 releaseList[prod][version] = release;
@@ -244,6 +246,8 @@ void UpdateManager::readManifest(const QString &xmlData)
                     return;
 
                 CFileInfo info;
+                info.inLauncher = launcher;
+
                 ReadAttribute(info.Name, "name");
                 info.Name = info.Name.replace("\\", "/");
 
@@ -345,7 +349,7 @@ void UpdateManager::writeCache(const QString &path, QMap<QString, QString> cache
     }
 }
 
-void UpdateManager::generateUpdate(const QString &path, const QString &plat, const QString &product, const QString &version, QWidget *parent)
+void UpdateManager::generateUpdate(const QString &path, const QString &plat, const QString &product, const QString &version, QWidget *)
 {
     auto cache = readCache(path + "/" + plat);
     QMap<QString, QString> changes;
@@ -427,6 +431,7 @@ void UpdateManager::generateUpdate(const QString &path, const QString &plat, con
     auto manifest = path + "/" + plat + ".manifest.xml";
 
     QFile xml(manifest);
+    xml.open(QFile::ReadWrite);
     QTextStream xmlData(&xml);
     readManifest(xmlData.readAll());
 

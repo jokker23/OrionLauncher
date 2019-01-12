@@ -1909,12 +1909,12 @@
         </item>
         <item>
          <property name="text">
-          <string>Orion Launcher</string>
+          <string>OrionLauncher</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Orion Assistant</string>
+          <string>OrionAssistant</string>
          </property>
         </item>
        </widget>
