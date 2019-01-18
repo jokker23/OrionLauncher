@@ -11,6 +11,8 @@ QT       += core gui  network widgets
 TARGET = OrionLauncher
 TEMPLATE = app
 
+CONFIG += c++11
+
 SOURCES += main.cpp\
         orionlauncherwindow.cpp \
         serverlistitem.cpp \

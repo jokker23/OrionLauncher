@@ -10,6 +10,7 @@
 #include <QList>
 #include <QFile>
 #include <QProgressDialog>
+#include <functional>
 #include "updateinfo.h"
 
 class ProgressDialog : public QProgressDialog

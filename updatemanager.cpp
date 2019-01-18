@@ -11,6 +11,7 @@
 #include "xxhash.h"
 #endif
 
+#include <assert.h>
 #include <QProgressDialog>
 #include <QNetworkRequest>
 #include <QNetworkReply>

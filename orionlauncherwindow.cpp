@@ -17,6 +17,7 @@
 #include <QXmlStreamWriter>
 #include <QApplication>
 #include <QtWidgets>
+#include <assert.h>
 
 #include "orionlauncherwindow.h"
 #include "proxylistitem.h"
