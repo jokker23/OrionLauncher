@@ -31,7 +31,7 @@
 #if defined(QT_NO_DEBUG)
 #define UPDATER_HOST "http://www.orionuo.com/"
 #else
-#define UPDATER_HOST "http://localhost:8089/"
+#define UPDATER_HOST "http://192.168.2.14:8089/"
 #endif
 
 #if _WINDOWS
@@ -968,7 +968,7 @@ void OrionLauncherWindow::on_pb_GenerateConfig_clicked()
 
 void OrionLauncherWindow::on_pb_Launch_clicked()
 {
-    const auto clientPath = ui->cb_OrionPath->currentText();
+    auto clientPath = ui->cb_OrionPath->currentText();
     if (!ui->lw_ServerList->count())
     {
         QMessageBox::critical(this, "Error", tr("Configuration not found."));

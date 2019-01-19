@@ -10,19 +10,22 @@
 #include "orionlauncherwindow.h"
 #include <QApplication>
 #include <QProcess>
+#include <QFileInfo>
+#include <QThread>
+#include <QMessageBox>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
 #if _WINDOWS
-    // Self-update hack
     if (!qApp->applicationFilePath().endsWith("_"))
     {
         auto app = qApp->applicationFilePath() + "_";
         QFile::copy(qApp->applicationFilePath(), app);
         QProcess child;
-        child.startDetached(app);
+        child.setProgram(app);
+        child.startDetached();
         return 0;
     }
 #endif
