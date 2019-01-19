@@ -18,6 +18,11 @@
   <property name="windowTitle">
    <string>Orion launcher</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QTabWidget::tab-bar {
+    left: 0; 
+}</string>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
     <property name="leftMargin">
