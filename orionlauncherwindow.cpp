@@ -1219,8 +1219,15 @@ void OrionLauncherWindow::onUpdatesListReceived(const QList<CFileInfo> &list)
     int n = 0;
     for (const auto &info : list)
     {
-        const auto fullPath = clientPath + "/" + info.Name;
-        const auto hash = m_UpdateManager->getHash(fullPath);
+        auto fullPath = clientPath + "/" + info.Name;
+        auto hash = m_UpdateManager->getHash(fullPath);
+
+        if (info.Name.toLower() == "orionlauncher" EXE_EXTENSION || info.inLauncher)
+        {
+            fullPath = qApp->applicationDirPath() + "/" + info.Name;
+            hash = m_UpdateManager->getHash(fullPath);
+        }
+
         //const bool wantUpdate = (info.Hash.length() && !hash.isEmpty() && info.Hash != hash);
         const bool wantUpdate = info.Hash.length() && info.Hash != hash; // even if we don't have the file locally
         if (wantUpdate)

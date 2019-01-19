@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-#if _WINDOWS
+#if defined(QT_NO_DEBUG)
     if (!qApp->applicationFilePath().endsWith("_"))
     {
         auto app = qApp->applicationFilePath() + "_";
