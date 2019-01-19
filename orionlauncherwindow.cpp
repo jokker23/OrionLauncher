@@ -25,8 +25,7 @@
 #include "qzipreader_p.h"
 #include "ui_orionlauncherwindow.h"
 
-#define LAUNCHER_VERSION "1.30.0"
-#define LAUNCHER_TITLE "Orion Launcher " LAUNCHER_VERSION
+#define LAUNCHER_TITLE "Orion Launcher v" APP_VERSION
 
 #if defined(QT_NO_DEBUG)
 #define UPDATER_HOST "http://www.orionuo.com/"
@@ -1278,6 +1277,17 @@ void OrionLauncherWindow::onFileReceived(const QString &name)
     Q_UNUSED(name);
 
     m_FilesToUpdateCount--;
+
+    if (m_DownloadingPackageTotal > 0)
+    {
+        ui->pb_UpdateProgress->setValue(
+            ((m_DownloadingPackageTotal - m_FilesToUpdateCount) * 100) /
+            m_DownloadingPackageTotal);
+
+        if (m_FilesToUpdateCount > 0)
+            return;
+    }
+
     if (m_FilesToUpdateCount <= 0 || ui->lw_AvailableUpdates->count() <= 0)
     {
         ui->pb_CheckUpdates->setEnabled(true);
@@ -1388,6 +1398,8 @@ void OrionLauncherWindow::on_pb_RestoreSelectedVersion_clicked()
     if (item == nullptr)
         return;
 
+    m_FilesToUpdateCount = item->m_Package.FileList.count();
+    m_DownloadingPackageTotal = m_FilesToUpdateCount;
     for (auto file : item->m_Package.FileList)
     {
         ui->pb_UpdateProgress->setValue(0);
@@ -1399,6 +1411,7 @@ void OrionLauncherWindow::on_pb_RestoreSelectedVersion_clicked()
         };
         m_UpdateManager->getFile("update", src, file, cb, this);
     }
+    m_DownloadingPackageTotal = 0;
 }
 
 void OrionLauncherWindow::unzipPackage(const QString &filename, const QString &toPath)

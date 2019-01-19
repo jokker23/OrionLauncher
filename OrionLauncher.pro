@@ -3,12 +3,13 @@
 # Project created by QtCreator 2016-12-20T16:45:23
 #
 #-------------------------------------------------
+VERSION = 1.30.0
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 QT       += core gui  network widgets
 # concurrent
-TARGET = OrionLauncher
+TARGET = orionlauncher
 TEMPLATE = app
 
 CONFIG += c++11

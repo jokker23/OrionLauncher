@@ -93,6 +93,7 @@ signals:
 private:
     Ui::OrionLauncherWindow *ui = nullptr;
     int m_FilesToUpdateCount = 0;
+    int m_DownloadingPackageTotal = 0;
     bool m_Loading = true;
     bool m_LauncherFoundInUpdates = false;
     ChangelogForm *m_ChangelogForm = nullptr;
