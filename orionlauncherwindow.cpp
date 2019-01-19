@@ -539,7 +539,7 @@ void OrionLauncherWindow::writeCfg()
 
 void OrionLauncherWindow::saveProxyList()
 {
-    QFile file(QDir::currentPath() + "/proxy.xml");
+    QFile file(QCoreApplication::applicationDirPath() + "/proxy.xml");
 
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
@@ -575,7 +575,7 @@ void OrionLauncherWindow::saveProxyList()
 
 void OrionLauncherWindow::saveServerList()
 {
-    QFile file(QDir::currentPath() + "/server.xml");
+    QFile file(QCoreApplication::applicationDirPath() + "/server.xml");
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QXmlStreamWriter writer(&file);
@@ -640,7 +640,7 @@ void OrionLauncherWindow::loadProxyList()
 {
     ui->lw_ProxyList->clear();
 
-    QFile file(QDir::currentPath() + "/proxy.xml");
+    QFile file(QCoreApplication::applicationDirPath() + "/proxy.xml");
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QXmlStreamReader reader(&file);
@@ -695,7 +695,7 @@ void OrionLauncherWindow::loadServerList()
 {
     ui->lw_ServerList->clear();
 
-    QFile file(QDir::currentPath() + "/server.xml");
+    QFile file(QCoreApplication::applicationDirPath()+ "/server.xml");
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QXmlStreamReader reader(&file);
@@ -855,7 +855,7 @@ void OrionLauncherWindow::on_tb_SetClientPath_clicked()
 {
     QString clientPath = ui->le_ServerClientPath->text();
     if (!clientPath.length())
-        clientPath = QDir::currentPath();
+        clientPath = QCoreApplication::applicationDirPath();
 
     QString path =
         QFileDialog::getExistingDirectory(nullptr, tr("Select UO directory"), clientPath);
@@ -870,7 +870,7 @@ void OrionLauncherWindow::on_tb_SetReleasePath_clicked()
 {
     auto path = ui->le_ReleasePath->text();
     if (!path.length())
-        path = QDir::currentPath();
+        path = QCoreApplication::applicationDirPath();
 
     path = QFileDialog::getExistingDirectory(nullptr, tr("Select release directory"), path);
     if (path.length())
@@ -909,7 +909,7 @@ void OrionLauncherWindow::on_tb_SetOrionPath_clicked()
 {
     QString startPath = ui->cb_OrionPath->currentText();
     if (!startPath.length())
-        startPath = QDir::currentPath();
+        startPath = QCoreApplication::applicationDirPath();
 
     QString path =
         QFileDialog::getExistingDirectory(nullptr, tr("Select OrionUO directory"), startPath);
