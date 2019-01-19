@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
     if (!qApp->applicationFilePath().endsWith("_"))
     {
         auto app = qApp->applicationFilePath() + "_";
+        QFile::remove(app);
         QFile::copy(qApp->applicationFilePath(), app);
         QProcess child;
         child.setProgram(app);

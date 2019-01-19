@@ -25,7 +25,7 @@
 #include "qzipreader_p.h"
 #include "ui_orionlauncherwindow.h"
 
-#define LAUNCHER_VERSION "1.3.0"
+#define LAUNCHER_VERSION "1.30.0"
 #define LAUNCHER_TITLE "Orion Launcher " LAUNCHER_VERSION
 
 #if defined(QT_NO_DEBUG)
