@@ -18,14 +18,14 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-#if defined(QT_NO_DEBUG)
+#if 1
     if (!qApp->applicationFilePath().endsWith("_"))
     {
         auto app = qApp->applicationFilePath() + "_";
         QFile::remove(app);
         QFile::copy(qApp->applicationFilePath(), app);
         QProcess child;
-        child.setProgram(app);
+        child.setProgram("\"" + app + "\"");
         child.startDetached();
         return 0;
     }

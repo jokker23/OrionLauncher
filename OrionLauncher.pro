@@ -3,7 +3,7 @@
 # Project created by QtCreator 2016-12-20T16:45:23
 #
 #-------------------------------------------------
-VERSION = 1.30.0
+VERSION = 1.30.1
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 

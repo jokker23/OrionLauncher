@@ -30,7 +30,8 @@
 #if defined(QT_NO_DEBUG)
 #define UPDATER_HOST "http://www.orionuo.com/"
 #else
-#define UPDATER_HOST "http://192.168.2.14:8089/"
+#define UPDATER_HOST "http://www.orionuo.com/"
+//#define UPDATER_HOST "http://192.168.2.14:8089/"
 #endif
 
 #if _WINDOWS
@@ -982,12 +983,12 @@ void OrionLauncherWindow::on_pb_Launch_clicked()
         return;
     }
 
-    if (!QFile::exists(clientPath + "/OrionUO.cfg"))
+    //if (!QFile::exists(clientPath + "/OrionUO.cfg"))
     {
         on_pb_GenerateConfig_clicked();
     }
 
-    auto program = ui->cb_OrionPath->currentText() + "/OrionUO" EXE_EXTENSION;
+    auto program = "\"" + clientPath + "/OrionUO" EXE_EXTENSION + "\"";
     auto command = ui->le_CommandLine->text();
     if (ui->cb_LaunchFastLogin->isChecked())
         command += " -fastlogin";
