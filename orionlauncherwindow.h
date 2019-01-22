@@ -113,7 +113,7 @@ private:
     QString decodeArgumentString(const char *text, const int &length);
     QString encodeArgumentString(const char *text, const int &length);
 
-    void runProgram(const QString &exePath, const QString &directory);
+    void runProgram(const QString &exePath, const QStringList &args, const QString &directory);
     void updateOAFeaturesCode();
     void updateOrionFeaturesCode();
 };

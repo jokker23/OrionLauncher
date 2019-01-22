@@ -960,12 +960,19 @@ QString OrionLauncherWindow::encodeArgumentString(const char *text, const int &l
     return result;
 }
 
-void OrionLauncherWindow::runProgram(const QString &exePath, const QString &directory)
+void OrionLauncherWindow::runProgram(const QString &exePath, const QStringList &args, const QString &directory)
 {
-    // FIXME This will leak
-    auto *process = new QProcess(this);
-    process->setWorkingDirectory(directory);
-    process->start(exePath);
+    QProcess process;
+    QDir::setCurrent(directory);
+    process.setArguments(args);
+    process.setWorkingDirectory(directory);
+    process.setProgram(exePath);
+    const auto success = process.startDetached();
+    if (!success)
+    {
+        QString err(QString("Could not launch application:\n" + exePath + "\nReason:\n"));
+        QMessageBox::critical(this, "Error", err + process.errorString());
+    }
 }
 
 void OrionLauncherWindow::on_pb_GenerateConfig_clicked()
@@ -999,39 +1006,48 @@ void OrionLauncherWindow::on_pb_Launch_clicked()
         return;
     }
 
-    auto program = "\"" + ui->cb_OrionPath->currentText() + "/orionuo" EXE_EXTENSION + "\"";
-    auto command = ui->le_CommandLine->text();
+#if BUILD_WINDOWS
+    auto cwd = ui->cb_OrionPath->currentText() + "\\";
+#else
+    auto cwd = QString("./");
+#endif
+
+    auto program = "\"" + cwd + "orionuo" EXE_EXTENSION + "\"";
+    QStringList args;
+    args.push_back(ui->le_CommandLine->text());
     if (ui->cb_LaunchFastLogin->isChecked())
-        command += " -fastlogin";
+        args.push_back("--fastlogin");
 
     if (ui->cb_LaunchAutologin->isChecked())
-        command += " -autologin";
+        args.push_back("--autologin");
     else
-        command += " -autologin:0";
+        args.push_back("--autologin=0");
 
     if (ui->cb_LaunchSavePassword->isChecked())
-        command += " -savepassword";
+        args.push_back("--savepassword");
     else
-        command += " -savepassword:0";
+        args.push_back("--savepassword=0");
 
+#if BUILD_WINDOWS
     if (ui->cb_LaunchSaveAero->isChecked())
-        command += " -aero";
+        args.push_back("--aero");
+#endif
 
-    command += " \"-login:" + serverItem->GetAddress() + "\"";
+    args.push_back("\"--login=" + serverItem->GetAddress() + "\"");
 
     QString account = serverItem->GetAccount();
     QString password = serverItem->GetPassword();
-    command +=
-        " -account:" + encodeArgumentString(account.toStdString().c_str(), account.length()) + "," +
-        encodeArgumentString(password.toStdString().c_str(), password.length());
+    args.push_back(
+        "--account=" + encodeArgumentString(account.toStdString().c_str(), account.length()) + "," +
+        encodeArgumentString(password.toStdString().c_str(), password.length()));
 
     QString character = serverItem->GetCharacter();
     if (character.length())
-        command += " -autologinname:" +
-                   encodeArgumentString(character.toStdString().c_str(), character.length());
+        args.push_back("--autologinname=" +
+                   encodeArgumentString(character.toStdString().c_str(), character.length()));
 
     if (ui->cb_NoClientWarnings->isChecked())
-        command += "-nowarnings";
+        args.push_back("--nowarnings");
 
     if (serverItem->GetUseProxy())
     {
@@ -1041,33 +1057,30 @@ void OrionLauncherWindow::on_pb_Launch_clicked()
             auto proxy = static_cast<CProxyListItem *>(ui->lw_ProxyList->item(i));
             if (proxy != nullptr && proxy->text().toLower() == proxyName)
             {
-                command += " -proxyhost:" + proxy->GetAddress() + "," + proxy->GetProxyPort();
-
+                args.push_back("-proxyhost=\"" + proxy->GetAddress() + "," + proxy->GetProxyPort() + "\"");
                 if (proxy->GetSocks5())
                 {
                     QString proxyAccount = proxy->GetAccount();
                     QString proxyPassword = proxy->GetPassword();
-                    command += " -proxyaccount:" +
+                    args.push_back("--proxyaccount=\"" +
                                encodeArgumentString(
                                    proxyAccount.toStdString().c_str(), proxyAccount.length()) +
                                "," +
                                encodeArgumentString(
-                                   proxyPassword.toStdString().c_str(), proxyPassword.length());
+                                   proxyPassword.toStdString().c_str(), proxyPassword.length()) + "\"");
                 }
                 break;
             }
         }
     }
 
-    if (command.length())
-        program += " " + command;
-    runProgram(program, clientPath);
+    runProgram(program, args, clientPath);
 
 #if BUILD_WINDOWS
     if (ui->cb_LaunchRunUOAM->isChecked())
     {
         clientPath += "/map";
-        runProgram(clientPath + "/enhancedmap" EXE_EXTENSION, clientPath);
+        runProgram(clientPath + "/enhancedmap" EXE_EXTENSION, QStringList(), clientPath);
     }
 #endif
 
