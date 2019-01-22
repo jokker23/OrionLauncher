@@ -34,17 +34,14 @@
 //#define UPDATER_HOST "http://192.168.2.14:8089/"
 #endif
 
-#if _WINDOWS
+#if BUILD_WINDOWS
 #define EXE_EXTENSION ".exe"
+#define GetPlatformName() "win64" // FIXME
 #else
 #define EXE_EXTENSION ""
 #endif
 
-#if _WINDOWS
-#define GetPlatformName() "win64" // FIXME
-#endif
-
-#if __linux__
+#if BUILD_LINUX
 static QString distroName;
 
 QString GetPlatformName()
@@ -79,7 +76,7 @@ QString GetPlatformName()
 }
 #endif
 
-#if __APPLE__
+#if BUILD_MACOS
 #define GetPlatformName() "osx" // FIXME
 #endif
 
@@ -138,7 +135,7 @@ OrionLauncherWindow::OrionLauncherWindow(QWidget *parent)
 
 #endif
 
-#if !_WINDOWS
+#if !BUILD_WINDOWS
     ui->cb_LaunchRunUOAM->setEnabled(false);
     ui->cb_LaunchRunUOAM->setVisible(false);
     ui->cb_LaunchSaveAero->setEnabled(false);
@@ -1066,7 +1063,7 @@ void OrionLauncherWindow::on_pb_Launch_clicked()
         program += " " + command;
     runProgram(program, clientPath);
 
-#if _WINDOWS
+#if BUILD_WINDOWS
     if (ui->cb_LaunchRunUOAM->isChecked())
     {
         clientPath += "/map";
@@ -1320,7 +1317,7 @@ void OrionLauncherWindow::onFileReceived(const QString &name)
         ui->pb_ShowChangelog->setEnabled(true);
         ui->pb_UpdateProgress->setValue(100);
         m_FilesToUpdateCount = 0;
-#if _WINDOWS
+#if BUILD_WINDOWS
         if (m_LauncherFoundInUpdates)
         {
             saveServerList();
@@ -1451,7 +1448,7 @@ void OrionLauncherWindow::unzipPackage(const QString &filename, const QString &t
     {
         qDebug() << "Failed to unpack file:" << filename;
     }
-#if !_WINDOWS
+#if !BUILD_WINDOWS
     for (auto it : zipReader.fileInfoList())
     {
         // FIXME: set executable only what was executable before packaging
