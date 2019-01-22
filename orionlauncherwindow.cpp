@@ -905,12 +905,24 @@ void OrionLauncherWindow::on_pb_Process_clicked()
 
 void OrionLauncherWindow::on_tb_SetOrionPath_clicked()
 {
-    QString startPath = ui->cb_OrionPath->currentText();
+    auto startPath = ui->cb_OrionPath->currentText();
     if (!startPath.length())
         startPath = QCoreApplication::applicationDirPath();
 
-    QString path =
-        QFileDialog::getExistingDirectory(nullptr, tr("Select OrionUO directory"), startPath);
+    auto r = QMessageBox::Yes;
+    auto path = startPath;
+    do
+    {
+        path = QFileDialog::getExistingDirectory(nullptr, tr("Select OrionUO client directory"), startPath);
+        if (path.isEmpty())
+            return;
+        auto clientExe = QFileInfo(QDir(path).filePath("client.exe"));
+        auto loginCfg = QFileInfo(QDir(path).filePath("login.cfg"));
+        if (clientExe.exists() && loginCfg.exists())
+        {
+            r = QMessageBox::warning(this, "WARNING", tr("Setting Orion path to the same as the original Ultima Online Client is not recommended!\nAre you sure to use this path?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        }
+    } while (r != QMessageBox::Yes);
 
     if (path.length())
     {
