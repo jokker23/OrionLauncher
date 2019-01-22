@@ -7,6 +7,19 @@ VERSION = 1.30.1
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
+CONFIG(release, debug|release) {
+    DEFINES += USE_RELEASE=1
+}
+CONFIG(debug, debug|release) {
+    DEFINES += USE_DEBUG=1
+}
+unix:!macx {
+    DEFINES += USE_RELAUNCH
+}
+win32:win64 {
+    DEFINES += USE_RELAUNCH
+}
+
 QT       += core gui  network widgets
 # concurrent
 TARGET = orionlauncher

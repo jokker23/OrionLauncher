@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-#if 1
+#if defined(USE_RELAUNCH) && defined(USE_RELEASE)
     if (!qApp->applicationFilePath().endsWith("_"))
     {
         auto app = qApp->applicationFilePath() + "_";
