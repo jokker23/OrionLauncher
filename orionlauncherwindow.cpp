@@ -428,7 +428,6 @@ void OrionLauncherWindow::on_pb_ProxyAdd_clicked()
 void OrionLauncherWindow::on_pb_ProxySave_clicked()
 {
     QString name = ui->le_ProxyName->text().toLower();
-
     if (!name.length())
     {
         QMessageBox::critical(this, "Name is empty", "Enter the proxy server name!");
@@ -436,7 +435,6 @@ void OrionLauncherWindow::on_pb_ProxySave_clicked()
     }
 
     auto selected = static_cast<CProxyListItem *>(ui->lw_ProxyList->currentItem());
-
     if (selected == nullptr)
     {
         QMessageBox::critical(this, "No selected item", "No selected proxy!");
@@ -515,7 +513,7 @@ void OrionLauncherWindow::writeCfg()
         return;
     }
     const auto clientPath = ui->cb_OrionPath->currentText();
-    QFile file(clientPath + "/OrionUO.cfg");
+    QFile file(clientPath + "/orionuo.cfg");
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QTextStream stream(&file);
@@ -969,6 +967,7 @@ void OrionLauncherWindow::on_pb_GenerateConfig_clicked()
 void OrionLauncherWindow::on_pb_Launch_clicked()
 {
     writeCfg();
+
     auto clientPath = ui->cb_OrionPath->currentText();
     if (!ui->lw_ServerList->count())
     {
@@ -991,7 +990,7 @@ void OrionLauncherWindow::on_pb_Launch_clicked()
         return;
     }
 
-    auto program = "\"" + clientPath + "/OrionUO" EXE_EXTENSION + "\"";
+    auto program = "\"" + ui->cb_OrionPath->currentText() + "/orionuo" EXE_EXTENSION + "\"";
     auto command = ui->le_CommandLine->text();
     if (ui->cb_LaunchFastLogin->isChecked())
         command += " -fastlogin";
