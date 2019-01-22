@@ -1262,6 +1262,7 @@ void OrionLauncherWindow::onPackageListReceived(const QMap<QString, QMap<QString
             ui->lw_Packages->addItem(new CPackageInfoListWidgetItem(packages[p][v]));
         }
     }
+    ui->lw_Packages->sortItems(Qt::SortOrder::DescendingOrder);
 }
 
 void OrionLauncherWindow::on_pb_CheckUpdates_clicked()
