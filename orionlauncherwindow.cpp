@@ -968,6 +968,7 @@ void OrionLauncherWindow::on_pb_GenerateConfig_clicked()
 
 void OrionLauncherWindow::on_pb_Launch_clicked()
 {
+    writeCfg();
     auto clientPath = ui->cb_OrionPath->currentText();
     if (!ui->lw_ServerList->count())
     {

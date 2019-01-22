@@ -124,7 +124,7 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>250</y>
+            <y>275</y>
             <width>311</width>
             <height>41</height>
            </rect>
@@ -196,19 +196,6 @@
           </property>
           <property name="text">
            <string>Run UOAM (UODir/Map/EnhancedMap.exe)</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pb_GenerateConfig">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>300</y>
-            <width>311</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Generate OrionUO.cfg for Selected Account</string>
           </property>
          </widget>
          <widget class="QCheckBox" name="cb_NoClientWarnings">
