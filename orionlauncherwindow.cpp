@@ -984,9 +984,11 @@ void OrionLauncherWindow::on_pb_Launch_clicked()
         return;
     }
 
-    //if (!QFile::exists(clientPath + "/OrionUO.cfg"))
+    if (serverItem->GetClientVersion().trimmed().isEmpty())
     {
-        on_pb_GenerateConfig_clicked();
+        QMessageBox::critical(this, tr("Error"), tr("Please set a Client Version!"));
+        ui->tw_Server->setCurrentIndex(1);
+        return;
     }
 
     auto program = "\"" + clientPath + "/OrionUO" EXE_EXTENSION + "\"";
