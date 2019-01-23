@@ -848,12 +848,37 @@ void OrionLauncherWindow::loadServerList()
 
 void OrionLauncherWindow::on_tb_SetClientPath_clicked()
 {
-    QString clientPath = ui->le_ServerClientPath->text();
-    if (!clientPath.length())
-        clientPath = QCoreApplication::applicationDirPath();
+    auto clientPath = QCoreApplication::applicationDirPath();
 
-    QString path =
-        QFileDialog::getExistingDirectory(nullptr, tr("Select UO directory"), clientPath);
+    auto r = QMessageBox::Yes;
+    auto path = clientPath;
+    do
+    {
+        path = QFileDialog::getExistingDirectory(nullptr, tr("Select UO Client Directory"), clientPath);
+        if (path.isEmpty())
+            return;
+        const QDir p(path);
+        const auto clientExe = QFileInfo(p.filePath("client.exe"));
+        const auto loginCfg1 = QFileInfo(p.filePath("Login.cfg"));
+        const auto loginCfg2 = QFileInfo(p.filePath("login.cfg"));
+        const auto outlands = QFileInfo(p.filePath("OutlandsUO.exe"));
+        const bool isValid = clientExe.exists() && (loginCfg1.exists() || loginCfg2.exists());
+        if (outlands.exists())
+        {
+            auto q = QMessageBox::question(this, "IS this Outlands?", tr("Is this a Outlands Client Installation?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+            if (q == QMessageBox::Yes)
+            {
+                ui->le_ServerClientVersion->setText("7.0.15.1");
+                ui->cb_ServerClientType->setCurrentIndex(5); // FIXME: find the correct by name
+                ui->le_ServerAddress->setText("play.uooutlands.com,2593");
+            }
+        }
+        if (!isValid)
+        {
+            r = QMessageBox::warning(this, "WARNING", tr("Couldn't find 'client.exe' or 'login.cfg'!\nAre you sure you want to use this path?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        }
+    } while (r != QMessageBox::Yes);
+
 
     if (path.length())
     {
@@ -913,9 +938,12 @@ void OrionLauncherWindow::on_tb_SetOrionPath_clicked()
         path = QFileDialog::getExistingDirectory(nullptr, tr("Select OrionUO client directory"), startPath);
         if (path.isEmpty())
             return;
-        auto clientExe = QFileInfo(QDir(path).filePath("client.exe"));
-        auto loginCfg = QFileInfo(QDir(path).filePath("login.cfg"));
-        if (clientExe.exists() && loginCfg.exists())
+        const QDir p(path);
+        const auto clientExe = QFileInfo(p.filePath("client.exe"));
+        const auto loginCfg1 = QFileInfo(p.filePath("Login.cfg"));
+        const auto loginCfg2 = QFileInfo(p.filePath("login.cfg"));
+        const bool isClientPath = clientExe.exists() && (loginCfg1.exists() || loginCfg2.exists());
+        if (isClientPath)
         {
             r = QMessageBox::warning(this, "WARNING", tr("Setting Orion path to the same as the original Ultima Online Client is not recommended!\nAre you sure to use this path?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
         }
@@ -1007,14 +1035,16 @@ void OrionLauncherWindow::on_pb_Launch_clicked()
     }
 
 #if BUILD_WINDOWS
-    auto cwd = ui->cb_OrionPath->currentText() + "\\";
+    const auto cwd = \"" + ui->cb_OrionPath->currentText() + "\\orionuo" EXE_EXTENSION + "\"";;
 #else
-    auto cwd = QString("./");
+    const auto cwd = QString("./orionuo");
 #endif
 
-    auto program = "\"" + cwd + "orionuo" EXE_EXTENSION + "\"";
+    const auto program = cwd;
     QStringList args;
-    args.push_back(ui->le_CommandLine->text());
+    if (!ui->le_CommandLine->text().trimmed().isEmpty())
+        args.push_back(ui->le_CommandLine->text());
+
     if (ui->cb_LaunchFastLogin->isChecked())
         args.push_back("--fastlogin");
 
