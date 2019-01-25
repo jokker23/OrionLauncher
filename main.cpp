@@ -7,7 +7,7 @@
 **
 ************************************************************************************
 */
-#include "orionlauncherwindow.h"
+#include "launcherwindow.h"
 #include <QApplication>
 #include <QProcess>
 #include <QFileInfo>
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 #endif
-    OrionLauncherWindow w;
+    LauncherWindow w;
     w.show();
     return a.exec();
 }

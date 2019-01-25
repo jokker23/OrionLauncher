@@ -1,6 +1,6 @@
 /***********************************************************************************
 **
-** OrionLauncherWindow.cpp
+** LauncherWindow.cpp
 **
 ** Copyright (C) December 2016 Hotride
 ** Copyright (C) December 2018 Danny Angelo Carminati Grein
@@ -19,18 +19,18 @@
 #include <QtWidgets>
 #include <assert.h>
 
-#include "orionlauncherwindow.h"
+#include "launcherwindow.h"
 #include "proxylistitem.h"
 #include "serverlistitem.h"
 #include "qzipreader_p.h"
-#include "ui_orionlauncherwindow.h"
+#include "ui_launcherwindow.h"
 
-#define LAUNCHER_TITLE "Orion Launcher v" APP_VERSION
+#define LAUNCHER_TITLE "X:UO Launcher v" APP_VERSION
 
 #if defined(QT_NO_DEBUG)
-#define UPDATER_HOST "http://www.orionuo.com/"
+#define UPDATER_HOST "http://www.crossuo.com/"
 #else
-#define UPDATER_HOST "http://www.orionuo.com/"
+#define UPDATER_HOST "http://www.crossuo.com/"
 //#define UPDATER_HOST "http://192.168.2.14:8089/"
 #endif
 
@@ -80,9 +80,9 @@ QString GetPlatformName()
 #define GetPlatformName() "osx" // FIXME
 #endif
 
-OrionLauncherWindow::OrionLauncherWindow(QWidget *parent)
+LauncherWindow::LauncherWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::OrionLauncherWindow)
+    , ui(new Ui::LauncherWindow)
 {
     ui->setupUi(this);
 
@@ -99,17 +99,17 @@ OrionLauncherWindow::OrionLauncherWindow(QWidget *parent)
         m_UpdateManager,
         &UpdateManager::packageListReceived,
         this,
-        &OrionLauncherWindow::onPackageListReceived);
+        &LauncherWindow::onPackageListReceived);
     connect(
         m_UpdateManager,
         &UpdateManager::updatesListReceived,
         this,
-        &OrionLauncherWindow::onUpdatesListReceived);
+        &LauncherWindow::onUpdatesListReceived);
     connect(
         m_UpdateManager,
         &UpdateManager::downloadProgress,
         this,
-        &OrionLauncherWindow::onDownloadProgress);
+        &LauncherWindow::onDownloadProgress);
 
     connect(
         this,
@@ -145,20 +145,20 @@ OrionLauncherWindow::OrionLauncherWindow(QWidget *parent)
     ui->tw_Main->setCurrentIndex(0);
     ui->tw_Server->setCurrentIndex(0);
 
-    updateOAFeaturesCode();
-    updateOrionFeaturesCode();
+    updateXUOAFeaturesCode();
+    updateXuoFeaturesCode();
 
     setWindowTitle(LAUNCHER_TITLE);
     m_Loading = false;
 
-    if (!ui->cb_OrionPath->currentText().length())
-        on_tb_SetOrionPath_clicked();
+    if (!ui->cb_XuoPath->currentText().length())
+        on_tb_SetXuoPath_clicked();
 
-    on_cb_OrionPath_currentIndexChanged(ui->cb_OrionPath->currentIndex());
+    on_cb_XuoPath_currentIndexChanged(ui->cb_XuoPath->currentIndex());
     m_UpdatesTimer.start(15 * 60 * 1000);
 }
 
-OrionLauncherWindow::~OrionLauncherWindow()
+LauncherWindow::~LauncherWindow()
 {
     delete ui;
 
@@ -171,13 +171,13 @@ OrionLauncherWindow::~OrionLauncherWindow()
     m_UpdatesTimer.stop();
 }
 
-void OrionLauncherWindow::onUpdatesTimer()
+void LauncherWindow::onUpdatesTimer()
 {
     if (ui->cb_CheckUpdates->isChecked())
         on_pb_CheckUpdates_clicked();
 }
 
-void OrionLauncherWindow::closeEvent(QCloseEvent *event)
+void LauncherWindow::closeEvent(QCloseEvent *event)
 {
     saveServerList();
     saveProxyList();
@@ -187,7 +187,7 @@ void OrionLauncherWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void OrionLauncherWindow::keyPressEvent(QKeyEvent *event)
+void LauncherWindow::keyPressEvent(QKeyEvent *event)
 {
     if (event->isAutoRepeat())
         return;
@@ -205,12 +205,12 @@ void OrionLauncherWindow::keyPressEvent(QKeyEvent *event)
     event->accept();
 }
 
-void OrionLauncherWindow::on_lw_ServerList_clicked(const QModelIndex &index)
+void LauncherWindow::on_lw_ServerList_clicked(const QModelIndex &index)
 {
     updateServerFields(index.row());
 }
 
-void OrionLauncherWindow::updateServerFields(const int &index)
+void LauncherWindow::updateServerFields(const int &index)
 {
     auto item = static_cast<CServerListItem *>(ui->lw_ServerList->item(index));
     if (item != nullptr)
@@ -238,14 +238,14 @@ void OrionLauncherWindow::updateServerFields(const int &index)
     }
 }
 
-void OrionLauncherWindow::on_lw_ServerList_doubleClicked(const QModelIndex &index)
+void LauncherWindow::on_lw_ServerList_doubleClicked(const QModelIndex &index)
 {
     Q_UNUSED(index);
 
     on_pb_Launch_clicked();
 }
 
-void OrionLauncherWindow::on_cb_ServerShowPassword_clicked()
+void LauncherWindow::on_cb_ServerShowPassword_clicked()
 {
     if (ui->cb_ServerShowPassword->isChecked())
         ui->le_ServerPassword->setEchoMode(QLineEdit::EchoMode::Normal);
@@ -253,7 +253,7 @@ void OrionLauncherWindow::on_cb_ServerShowPassword_clicked()
         ui->le_ServerPassword->setEchoMode(QLineEdit::EchoMode::Password);
 }
 
-void OrionLauncherWindow::on_pb_ServerAdd_clicked()
+void LauncherWindow::on_pb_ServerAdd_clicked()
 {
     QString name = ui->le_ServerName->text().toLower();
 
@@ -289,7 +289,7 @@ void OrionLauncherWindow::on_pb_ServerAdd_clicked()
     updateServerFields(ui->lw_ServerList->count() - 1);
 }
 
-void OrionLauncherWindow::on_pb_ServerSave_clicked()
+void LauncherWindow::on_pb_ServerSave_clicked()
 {
     QString name = ui->le_ServerName->text().toLower();
 
@@ -340,7 +340,7 @@ void OrionLauncherWindow::on_pb_ServerSave_clicked()
     saveServerList();
 }
 
-void OrionLauncherWindow::on_pb_ServerRemove_clicked()
+void LauncherWindow::on_pb_ServerRemove_clicked()
 {
     QListWidgetItem *item = ui->lw_ServerList->currentItem();
 
@@ -357,7 +357,7 @@ void OrionLauncherWindow::on_pb_ServerRemove_clicked()
     }
 }
 
-void OrionLauncherWindow::on_le_CommandLine_textChanged(const QString &arg1)
+void LauncherWindow::on_le_CommandLine_textChanged(const QString &arg1)
 {
     auto selected = static_cast<CServerListItem *>(ui->lw_ServerList->currentItem());
 
@@ -365,7 +365,7 @@ void OrionLauncherWindow::on_le_CommandLine_textChanged(const QString &arg1)
         selected->SetCommand(arg1);
 }
 
-void OrionLauncherWindow::on_lw_ProxyList_clicked(const QModelIndex &index)
+void LauncherWindow::on_lw_ProxyList_clicked(const QModelIndex &index)
 {
     auto item = static_cast<CProxyListItem *>(ui->lw_ProxyList->item(index.row()));
     if (item != nullptr)
@@ -379,7 +379,7 @@ void OrionLauncherWindow::on_lw_ProxyList_clicked(const QModelIndex &index)
     }
 }
 
-void OrionLauncherWindow::on_cb_ProxyShowPassword_clicked()
+void LauncherWindow::on_cb_ProxyShowPassword_clicked()
 {
     if (ui->cb_ProxyShowPassword->isChecked())
         ui->le_ProxyPassword->setEchoMode(QLineEdit::EchoMode::Normal);
@@ -387,7 +387,7 @@ void OrionLauncherWindow::on_cb_ProxyShowPassword_clicked()
         ui->le_ProxyPassword->setEchoMode(QLineEdit::EchoMode::Password);
 }
 
-void OrionLauncherWindow::on_pb_ProxyAdd_clicked()
+void LauncherWindow::on_pb_ProxyAdd_clicked()
 {
     auto name = ui->le_ProxyName->text().toLower();
     if (!name.length())
@@ -422,7 +422,7 @@ void OrionLauncherWindow::on_pb_ProxyAdd_clicked()
     ui->cb_ServerProxy->addItem(ui->le_ProxyName->text());
 }
 
-void OrionLauncherWindow::on_pb_ProxySave_clicked()
+void LauncherWindow::on_pb_ProxySave_clicked()
 {
     QString name = ui->le_ProxyName->text().toLower();
     if (!name.length())
@@ -467,7 +467,7 @@ void OrionLauncherWindow::on_pb_ProxySave_clicked()
     ui->cb_ServerProxy->setItemText(ui->lw_ProxyList->currentRow(), ui->le_ProxyName->text());
 }
 
-void OrionLauncherWindow::on_pb_ProxyRemove_clicked()
+void LauncherWindow::on_pb_ProxyRemove_clicked()
 {
     auto item = ui->lw_ProxyList->currentItem();
     if (item != nullptr)
@@ -484,12 +484,12 @@ void OrionLauncherWindow::on_pb_ProxyRemove_clicked()
     }
 }
 
-QString OrionLauncherWindow::boolToText(const bool &value)
+QString LauncherWindow::boolToText(const bool &value)
 {
     return value ? "true" : "false";
 }
 
-bool OrionLauncherWindow::rawStringToBool(QString value)
+bool LauncherWindow::rawStringToBool(QString value)
 {
     value = value.toLower();
     bool result = false;
@@ -502,15 +502,15 @@ bool OrionLauncherWindow::rawStringToBool(QString value)
     return result;
 }
 
-void OrionLauncherWindow::writeCfg()
+void LauncherWindow::writeCfg()
 {
     auto item = static_cast<CServerListItem *>(ui->lw_ServerList->currentItem());
     if (item == nullptr)
     {
         return;
     }
-    const auto clientPath = ui->cb_OrionPath->currentText();
-    QFile file(clientPath + "/orionuo.cfg");
+    const auto clientPath = ui->cb_XuoPath->currentText();
+    QFile file(clientPath + "/crossuo.cfg");
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QTextStream stream(&file);
@@ -532,7 +532,7 @@ void OrionLauncherWindow::writeCfg()
     }
 }
 
-void OrionLauncherWindow::saveProxyList()
+void LauncherWindow::saveProxyList()
 {
     QFile file(QCoreApplication::applicationDirPath() + "/proxy.xml");
 
@@ -568,7 +568,7 @@ void OrionLauncherWindow::saveProxyList()
     }
 }
 
-void OrionLauncherWindow::saveServerList()
+void LauncherWindow::saveServerList()
 {
     QFile file(QCoreApplication::applicationDirPath() + "/server.xml");
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -589,10 +589,10 @@ void OrionLauncherWindow::saveServerList()
             "noclientwarnings", boolToText(ui->cb_NoClientWarnings->isChecked()));
         writer.writeAttribute("beta", boolToText(ui->cb_Beta->isChecked()));
 
-        for (int i = 0; i < ui->cb_OrionPath->count(); i++)
+        for (int i = 0; i < ui->cb_XuoPath->count(); i++)
         {
             writer.writeStartElement("clientpath");
-            writer.writeAttribute("path", ui->cb_OrionPath->itemText(i));
+            writer.writeAttribute("path", ui->cb_XuoPath->itemText(i));
             writer.writeEndElement(); // clientpath
         }
 
@@ -631,7 +631,7 @@ void OrionLauncherWindow::saveServerList()
     }
 }
 
-void OrionLauncherWindow::loadProxyList()
+void LauncherWindow::loadProxyList()
 {
     ui->lw_ProxyList->clear();
 
@@ -686,7 +686,7 @@ void OrionLauncherWindow::loadProxyList()
     }
 }
 
-void OrionLauncherWindow::loadServerList()
+void LauncherWindow::loadServerList()
 {
     ui->lw_ServerList->clear();
 
@@ -700,7 +700,7 @@ void OrionLauncherWindow::loadServerList()
         int clientindex = -1;
         int lastServer = -1;
 
-        ui->cb_OrionPath->clear();
+        ui->cb_XuoPath->clear();
         while (!reader.atEnd() && !reader.hasError())
         {
             if (reader.isStartElement())
@@ -728,7 +728,7 @@ void OrionLauncherWindow::loadServerList()
                     {
                         auto path = attributes.value("path").toString().trimmed();
                         QFileInfo fi(path);
-                        ui->cb_OrionPath->addItem(fi.absoluteFilePath());
+                        ui->cb_XuoPath->addItem(fi.absoluteFilePath());
                         clientindex = 0;
                     }
 
@@ -750,12 +750,12 @@ void OrionLauncherWindow::loadServerList()
                     {
                         auto path = attributes.value("path").toString().trimmed();
                         QFileInfo fi(path);
-                        ui->cb_OrionPath->addItem(fi.absoluteFilePath());
+                        ui->cb_XuoPath->addItem(fi.absoluteFilePath());
                         path = fi.absoluteFilePath();
                         bool found = false;
-                        for (int i = 0; i < ui->cb_OrionPath->count(); i++)
+                        for (int i = 0; i < ui->cb_XuoPath->count(); i++)
                         {
-                            if (path == ui->cb_OrionPath->itemText(i))
+                            if (path == ui->cb_XuoPath->itemText(i))
                             {
                                 found = true;
                                 break;
@@ -763,7 +763,7 @@ void OrionLauncherWindow::loadServerList()
                         }
 
                         if (!found)
-                            ui->cb_OrionPath->addItem(path);
+                            ui->cb_XuoPath->addItem(path);
                     }
                 }
                 else if (reader.name() == "server")
@@ -834,8 +834,8 @@ void OrionLauncherWindow::loadServerList()
             reader.readNext();
         }
 
-        if (clientindex >= 0 && clientindex < ui->cb_OrionPath->count())
-            ui->cb_OrionPath->setCurrentIndex(clientindex);
+        if (clientindex >= 0 && clientindex < ui->cb_XuoPath->count())
+            ui->cb_XuoPath->setCurrentIndex(clientindex);
 
         if (lastServer >= 0 && lastServer < ui->lw_ServerList->count())
         {
@@ -846,7 +846,7 @@ void OrionLauncherWindow::loadServerList()
     }
 }
 
-void OrionLauncherWindow::on_tb_SetClientPath_clicked()
+void LauncherWindow::on_tb_SetClientPath_clicked()
 {
     auto clientPath = QCoreApplication::applicationDirPath();
 
@@ -886,7 +886,7 @@ void OrionLauncherWindow::on_tb_SetClientPath_clicked()
     }
 }
 
-void OrionLauncherWindow::on_tb_SetReleasePath_clicked()
+void LauncherWindow::on_tb_SetReleasePath_clicked()
 {
     auto path = ui->le_ReleasePath->text();
     if (!path.length())
@@ -909,7 +909,7 @@ void OrionLauncherWindow::on_tb_SetReleasePath_clicked()
     }
 }
 
-void OrionLauncherWindow::on_pb_Process_clicked()
+void LauncherWindow::on_pb_Process_clicked()
 {
     if (ui->pb_Process->isEnabled())
     {
@@ -925,9 +925,9 @@ void OrionLauncherWindow::on_pb_Process_clicked()
     }
 }
 
-void OrionLauncherWindow::on_tb_SetOrionPath_clicked()
+void LauncherWindow::on_tb_SetXuoPath_clicked()
 {
-    auto startPath = ui->cb_OrionPath->currentText();
+    auto startPath = ui->cb_XuoPath->currentText();
     if (!startPath.length())
         startPath = QCoreApplication::applicationDirPath();
 
@@ -935,7 +935,7 @@ void OrionLauncherWindow::on_tb_SetOrionPath_clicked()
     auto path = startPath;
     do
     {
-        path = QFileDialog::getExistingDirectory(nullptr, tr("Select OrionUO client directory"), startPath);
+        path = QFileDialog::getExistingDirectory(nullptr, tr("Select CrossUO client directory"), startPath);
         if (path.isEmpty())
             return;
         const QDir p(path);
@@ -945,27 +945,27 @@ void OrionLauncherWindow::on_tb_SetOrionPath_clicked()
         const bool isClientPath = clientExe.exists() && (loginCfg1.exists() || loginCfg2.exists());
         if (isClientPath)
         {
-            r = QMessageBox::warning(this, "WARNING", tr("Setting Orion path to the same as the original Ultima Online Client is not recommended!\nAre you sure to use this path?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+            r = QMessageBox::warning(this, "WARNING", tr("Setting crossuopath to the same as the original Ultima Online Client is not recommended!\nAre you sure to use this path?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
         }
     } while (r != QMessageBox::Yes);
 
     if (path.length())
     {
-        for (int i = 0; i < ui->cb_OrionPath->count(); i++)
+        for (int i = 0; i < ui->cb_XuoPath->count(); i++)
         {
-            if (path == ui->cb_OrionPath->itemText(i))
+            if (path == ui->cb_XuoPath->itemText(i))
             {
-                ui->cb_OrionPath->setCurrentIndex(i);
+                ui->cb_XuoPath->setCurrentIndex(i);
                 return;
             }
         }
 
-        ui->cb_OrionPath->addItem(path);
-        ui->cb_OrionPath->setCurrentIndex(ui->cb_OrionPath->count() - 1);
+        ui->cb_XuoPath->addItem(path);
+        ui->cb_XuoPath->setCurrentIndex(ui->cb_XuoPath->count() - 1);
     }
 }
 
-QString OrionLauncherWindow::decodeArgumentString(const char *text, const int &length)
+QString LauncherWindow::decodeArgumentString(const char *text, const int &length)
 {
     QString result;
     for (int i = 0; i < length; i += 2)
@@ -976,7 +976,7 @@ QString OrionLauncherWindow::decodeArgumentString(const char *text, const int &l
     return result;
 }
 
-QString OrionLauncherWindow::encodeArgumentString(const char *text, const int &length)
+QString LauncherWindow::encodeArgumentString(const char *text, const int &length)
 {
     QString result;
     for (int i = 0; i < length; i++)
@@ -988,7 +988,7 @@ QString OrionLauncherWindow::encodeArgumentString(const char *text, const int &l
     return result;
 }
 
-void OrionLauncherWindow::runProgram(const QString &exePath, const QStringList &args, const QString &directory)
+void LauncherWindow::runProgram(const QString &exePath, const QStringList &args, const QString &directory)
 {
     QProcess process;
     QDir::setCurrent(directory);
@@ -1003,16 +1003,16 @@ void OrionLauncherWindow::runProgram(const QString &exePath, const QStringList &
     }
 }
 
-void OrionLauncherWindow::on_pb_GenerateConfig_clicked()
+void LauncherWindow::on_pb_GenerateConfig_clicked()
 {
     writeCfg();
 }
 
-void OrionLauncherWindow::on_pb_Launch_clicked()
+void LauncherWindow::on_pb_Launch_clicked()
 {
     writeCfg();
 
-    auto clientPath = ui->cb_OrionPath->currentText();
+    auto clientPath = ui->cb_XuoPath->currentText();
     if (!ui->lw_ServerList->count())
     {
         QMessageBox::critical(this, "Error", tr("Configuration not found."));
@@ -1035,9 +1035,9 @@ void OrionLauncherWindow::on_pb_Launch_clicked()
     }
 
 #if BUILD_WINDOWS
-    const auto cwd = \"" + ui->cb_OrionPath->currentText() + "\\orionuo" EXE_EXTENSION + "\"";;
+    const auto cwd = "\"" + ui->cb_XuoPath->currentText() + "\\crossuo" EXE_EXTENSION + "\"";
 #else
-    const auto cwd = QString("./orionuo");
+    const auto cwd = QString("./crossuo");
 #endif
 
     const auto program = cwd;
@@ -1122,94 +1122,94 @@ void OrionLauncherWindow::on_pb_Launch_clicked()
     }
 }
 
-void OrionLauncherWindow::on_cb_LaunchAutologin_clicked()
+void LauncherWindow::on_cb_LaunchAutologin_clicked()
 {
     auto item = static_cast<CServerListItem *>(ui->lw_ServerList->currentItem());
     if (item != nullptr)
         item->SetOptionAutologin(ui->cb_LaunchAutologin->isChecked());
 }
 
-void OrionLauncherWindow::on_cb_LaunchSavePassword_clicked()
+void LauncherWindow::on_cb_LaunchSavePassword_clicked()
 {
     auto item = static_cast<CServerListItem *>(ui->lw_ServerList->currentItem());
     if (item != nullptr)
         item->SetOptionSavePassword(ui->cb_LaunchSavePassword->isChecked());
 }
 
-void OrionLauncherWindow::on_cb_LaunchSaveAero_clicked()
+void LauncherWindow::on_cb_LaunchSaveAero_clicked()
 {
     auto item = static_cast<CServerListItem *>(ui->lw_ServerList->currentItem());
     if (item != nullptr)
         item->SetOptionSaveAero(ui->cb_LaunchSaveAero->isChecked());
 }
 
-void OrionLauncherWindow::on_cb_LaunchFastLogin_clicked()
+void LauncherWindow::on_cb_LaunchFastLogin_clicked()
 {
     auto item = static_cast<CServerListItem *>(ui->lw_ServerList->currentItem());
     if (item != nullptr)
         item->SetOptionFastLogin(ui->cb_LaunchFastLogin->isChecked());
 }
 
-void OrionLauncherWindow::on_cb_LaunchRunUOAM_clicked()
+void LauncherWindow::on_cb_LaunchRunUOAM_clicked()
 {
     auto item = static_cast<CServerListItem *>(ui->lw_ServerList->currentItem());
     if (item != nullptr)
         item->SetOptionRunUOAM(ui->cb_LaunchRunUOAM->isChecked());
 }
 
-void OrionLauncherWindow::on_cb_Beta_clicked()
+void LauncherWindow::on_cb_Beta_clicked()
 {
     on_pb_CheckUpdates_clicked();
 }
 
-void OrionLauncherWindow::on_lw_OAFeaturesOptions_clicked(const QModelIndex &index)
+void LauncherWindow::on_lw_XUOAFeaturesOptions_clicked(const QModelIndex &index)
 {
     Q_UNUSED(index);
-    updateOAFeaturesCode();
+    updateXUOAFeaturesCode();
 }
 
-void OrionLauncherWindow::on_lw_OAFeaturesScripts_clicked(const QModelIndex &index)
+void LauncherWindow::on_lw_XUOAFeaturesScripts_clicked(const QModelIndex &index)
 {
     Q_UNUSED(index);
-    updateOAFeaturesCode();
+    updateXUOAFeaturesCode();
 }
 
-void OrionLauncherWindow::on_rb_OAFeaturesSphere_clicked()
+void LauncherWindow::on_rb_XUOAFeaturesSphere_clicked()
 {
-    updateOAFeaturesCode();
+    updateXUOAFeaturesCode();
 }
 
-void OrionLauncherWindow::on_rb_OAFeaturesRunUO_clicked()
+void LauncherWindow::on_rb_XUOAFeaturesRunUO_clicked()
 {
-    updateOAFeaturesCode();
+    updateXUOAFeaturesCode();
 }
 
-void OrionLauncherWindow::on_rb_OAFeaturesPOL_clicked()
+void LauncherWindow::on_rb_XUOAFeaturesPOL_clicked()
 {
-    updateOAFeaturesCode();
+    updateXUOAFeaturesCode();
 }
 
-void OrionLauncherWindow::updateOAFeaturesCode()
+void LauncherWindow::updateXUOAFeaturesCode()
 {
     quint64 featuresFlags = 0;
     quint64 scriptGroupsFlags = 0;
 
-    for (auto i = 0; i < ui->lw_OAFeaturesOptions->count(); i++)
+    for (auto i = 0; i < ui->lw_XUOAFeaturesOptions->count(); i++)
     {
-        auto item = ui->lw_OAFeaturesOptions->item(i);
+        auto item = ui->lw_XUOAFeaturesOptions->item(i);
         if (item != nullptr && item->checkState() == Qt::Checked)
             featuresFlags |= (quint64(1) << i);
     }
 
-    for (auto i = 0; i < ui->lw_OAFeaturesScripts->count(); i++)
+    for (auto i = 0; i < ui->lw_XUOAFeaturesScripts->count(); i++)
     {
-        auto item = ui->lw_OAFeaturesScripts->item(i);
+        auto item = ui->lw_XUOAFeaturesScripts->item(i);
         if (item != nullptr && item->checkState() == Qt::Checked)
             scriptGroupsFlags |= (quint64(1) << i);
     }
 
     QString code;
-    if (ui->rb_OAFeaturesSphere->isChecked())
+    if (ui->rb_XUOAFeaturesSphere->isChecked())
     {
         code.sprintf(
             "//data for sendpacket\nB0FC W015 W0A001 D0%08X D0%08X D0%08X D0%08X",
@@ -1218,12 +1218,12 @@ void OrionLauncherWindow::updateOAFeaturesCode()
             uint((scriptGroupsFlags >> 32) & 0xFFFFFFFF),
             uint(scriptGroupsFlags & 0xFFFFFFFF));
     }
-    else if (ui->rb_OAFeaturesRunUO->isChecked())
+    else if (ui->rb_XUOAFeaturesRunUO->isChecked())
     {
         code.sprintf(
-            "public sealed class OAFeatures : Packet\n"
+            "public sealed class XUOAFeatures : Packet\n"
             "{\n"
-            "public OAFeatures() : base(0xFC)\n"
+            "public XUOAFeatures() : base(0xFC)\n"
             "{\n"
             "EnsureCapacity(21);\n"
             "m_Stream.Write((ushort)0xA001);\n"
@@ -1238,10 +1238,10 @@ void OrionLauncherWindow::updateOAFeaturesCode()
             uint((scriptGroupsFlags >> 32) & 0xFFFFFFFF),
             uint(scriptGroupsFlags & 0xFFFFFFFF));
     }
-    else if (ui->rb_OAFeaturesPOL->isChecked())
+    else if (ui->rb_XUOAFeaturesPOL->isChecked())
     {
         code.sprintf(
-            "program oafeatures_sendpacket(who)\n"
+            "program XUOAFeatures_sendpacket(who)\n"
             "var res := SendPacket(who, \"FC0015A001%08X%08X%08X%08X\");\n"
             "if (!res)\n"
             "print(\"SendPacket error: \" + res.errortext );\n"
@@ -1252,10 +1252,10 @@ void OrionLauncherWindow::updateOAFeaturesCode()
             uint((scriptGroupsFlags >> 32) & 0xFFFFFFFF),
             uint(scriptGroupsFlags & 0xFFFFFFFF));
     }
-    ui->pte_OAFeaturesCode->setPlainText(code);
+    ui->pte_XUOAFeaturesCode->setPlainText(code);
 }
 
-void OrionLauncherWindow::on_cb_OrionPath_currentIndexChanged(int index)
+void LauncherWindow::on_cb_XuoPath_currentIndexChanged(int index)
 {
     Q_UNUSED(index);
     if (!m_Loading)
@@ -1265,10 +1265,10 @@ void OrionLauncherWindow::on_cb_OrionPath_currentIndexChanged(int index)
     }
 }
 
-void OrionLauncherWindow::onUpdatesListReceived(const QList<CFileInfo> &list)
+void LauncherWindow::onUpdatesListReceived(const QList<CFileInfo> &list)
 {
     ui->lw_AvailableUpdates->clear();
-    const auto clientPath = ui->cb_OrionPath->currentText();
+    const auto clientPath = ui->cb_XuoPath->currentText();
 
     ui->pb_UpdateProgress->setValue(0);
     int n = 0;
@@ -1277,7 +1277,7 @@ void OrionLauncherWindow::onUpdatesListReceived(const QList<CFileInfo> &list)
         auto fullPath = clientPath + "/" + info.Name;
         auto hash = m_UpdateManager->getHash(fullPath);
 
-        if (info.Name.toLower() == "orionlauncher" EXE_EXTENSION || info.inLauncher)
+        if (info.Name.toLower() == "launcher" EXE_EXTENSION || info.inLauncher)
         {
             fullPath = qApp->applicationDirPath() + "/" + info.Name;
             hash = m_UpdateManager->getHash(fullPath);
@@ -1302,7 +1302,7 @@ void OrionLauncherWindow::onUpdatesListReceived(const QList<CFileInfo> &list)
     ui->pb_UpdateProgress->setValue(100);
 }
 
-void OrionLauncherWindow::onPackageListReceived(const QMap<QString, QMap<QString, CReleaseInfo>> &packages)
+void LauncherWindow::onPackageListReceived(const QMap<QString, QMap<QString, CReleaseInfo>> &packages)
 {
     ui->lw_Packages->clear();
     for (const auto &p : packages.keys())
@@ -1318,7 +1318,7 @@ void OrionLauncherWindow::onPackageListReceived(const QMap<QString, QMap<QString
     ui->lw_Packages->sortItems(Qt::SortOrder::DescendingOrder);
 }
 
-void OrionLauncherWindow::on_pb_CheckUpdates_clicked()
+void LauncherWindow::on_pb_CheckUpdates_clicked()
 {
     if (!ui->pb_CheckUpdates->isEnabled())
         return;
@@ -1335,7 +1335,7 @@ void OrionLauncherWindow::on_pb_CheckUpdates_clicked()
     m_UpdateManager->getManifest(QString("release/%1%2.manifest.xml").arg(GetPlatformName()).arg(beta));
 }
 
-void OrionLauncherWindow::onFileReceived(const QString &name)
+void LauncherWindow::onFileReceived(const QString &name)
 {
     Q_UNUSED(name);
 
@@ -1385,7 +1385,7 @@ void OrionLauncherWindow::onFileReceived(const QString &name)
     }
 }
 
-void OrionLauncherWindow::on_pb_ApplyUpdates_clicked()
+void LauncherWindow::on_pb_ApplyUpdates_clicked()
 {
     if (!ui->pb_CheckUpdates->isEnabled())
         return;
@@ -1401,7 +1401,7 @@ void OrionLauncherWindow::on_pb_ApplyUpdates_clicked()
     if (QMessageBox::question(
             this,
             "Updates notification",
-            "Close all OrionUO instances and press 'Yes'.\nPress "
+            "Close all XuoUO instances and press 'Yes'.\nPress "
             "'No' for cancel.") != QMessageBox::Yes)
         return;
 
@@ -1428,8 +1428,8 @@ void OrionLauncherWindow::on_pb_ApplyUpdates_clicked()
     {
         for (auto item : updateList)
         {
-            auto dst = ui->cb_OrionPath->currentText();
-            if (item->text().toLower() == "orionlauncher" EXE_EXTENSION || item->m_Info.inLauncher)
+            auto dst = ui->cb_XuoPath->currentText();
+            if (item->text().toLower() == "launcher" EXE_EXTENSION || item->m_Info.inLauncher)
             {
                 m_LauncherFoundInUpdates = true;
                 dst = qApp->applicationDirPath();
@@ -1455,7 +1455,7 @@ void OrionLauncherWindow::on_pb_ApplyUpdates_clicked()
     }
 }
 
-void OrionLauncherWindow::on_pb_RestoreSelectedVersion_clicked()
+void LauncherWindow::on_pb_RestoreSelectedVersion_clicked()
 {
     const auto item = static_cast<CPackageInfoListWidgetItem *>(ui->lw_Packages->currentItem());
     if (item == nullptr)
@@ -1467,7 +1467,7 @@ void OrionLauncherWindow::on_pb_RestoreSelectedVersion_clicked()
     {
         ui->pb_UpdateProgress->setValue(0);
         const auto src = file.ZipFileName;
-        const auto dst = ui->cb_OrionPath->currentText();
+        const auto dst = ui->cb_XuoPath->currentText();
         auto cb = [this, dst](const QString &f) {
             unzipPackage(f, dst);
             onFileReceived(f);
@@ -1477,7 +1477,7 @@ void OrionLauncherWindow::on_pb_RestoreSelectedVersion_clicked()
     m_DownloadingPackageTotal = 0;
 }
 
-void OrionLauncherWindow::unzipPackage(const QString &filename, const QString &toPath)
+void LauncherWindow::unzipPackage(const QString &filename, const QString &toPath)
 {
     QZipReader zipReader{ filename };
     QDir dir{ toPath };
@@ -1503,12 +1503,12 @@ void OrionLauncherWindow::unzipPackage(const QString &filename, const QString &t
     zipReader.close();
 }
 
-void OrionLauncherWindow::onDownloadProgress(qint64 bytesRead, qint64 totalBytes)
+void LauncherWindow::onDownloadProgress(qint64 bytesRead, qint64 totalBytes)
 {
     ui->pb_UpdateProgress->setValue(100 * int(bytesRead / float(totalBytes)));
 }
 
-void OrionLauncherWindow::on_pb_ShowChangelog_clicked()
+void LauncherWindow::on_pb_ShowChangelog_clicked()
 {
     assert(m_ChangelogForm != nullptr);
 
@@ -1522,55 +1522,55 @@ void OrionLauncherWindow::on_pb_ShowChangelog_clicked()
     m_UpdateManager->getChangelog("release/changelog.html");
 }
 
-void OrionLauncherWindow::on_lw_Packages_doubleClicked(const QModelIndex &index)
+void LauncherWindow::on_lw_Packages_doubleClicked(const QModelIndex &index)
 {
     Q_UNUSED(index);
     on_pb_RestoreSelectedVersion_clicked();
 }
 
-void OrionLauncherWindow::on_lw_OrionFeaturesOptions_clicked(const QModelIndex &index)
+void LauncherWindow::on_lw_XuoFeaturesOptions_clicked(const QModelIndex &index)
 {
     Q_UNUSED(index);
-    updateOrionFeaturesCode();
+    updateXuoFeaturesCode();
 }
 
-void OrionLauncherWindow::on_rb_OrionFeaturesSphere_clicked()
+void LauncherWindow::on_rb_XuoFeaturesSphere_clicked()
 {
-    updateOrionFeaturesCode();
+    updateXuoFeaturesCode();
 }
 
-void OrionLauncherWindow::on_rb_OrionFeaturesRunUO_clicked()
+void LauncherWindow::on_rb_XuoFeaturesRunUO_clicked()
 {
-    updateOrionFeaturesCode();
+    updateXuoFeaturesCode();
 }
 
-void OrionLauncherWindow::on_rb_OrionFeaturesPOL_clicked()
+void LauncherWindow::on_rb_XuoFeaturesPOL_clicked()
 {
-    updateOrionFeaturesCode();
+    updateXuoFeaturesCode();
 }
 
-void OrionLauncherWindow::updateOrionFeaturesCode()
+void LauncherWindow::updateXuoFeaturesCode()
 {
     uint featuresFlags = 0;
 
-    for (int i = 0; i < ui->lw_OrionFeaturesOptions->count(); i++)
+    for (int i = 0; i < ui->lw_XuoFeaturesOptions->count(); i++)
     {
-        const auto item = ui->lw_OrionFeaturesOptions->item(i);
+        const auto item = ui->lw_XuoFeaturesOptions->item(i);
         if (item != nullptr && item->checkState() == Qt::Checked)
             featuresFlags |= (1 << i);
     }
 
     QString code;
-    if (ui->rb_OrionFeaturesSphere->isChecked())
+    if (ui->rb_XuoFeaturesSphere->isChecked())
     {
         code.sprintf("//data for sendpacket\nB0FC W0009 W0032 D0%08X", featuresFlags);
     }
-    else if (ui->rb_OrionFeaturesRunUO->isChecked())
+    else if (ui->rb_XuoFeaturesRunUO->isChecked())
     {
         code.sprintf(
-            "public sealed class OAFeatures : Packet\n"
+            "public sealed class XUOAFeatures : Packet\n"
             "{\n"
-            "public OAFeatures() : base(0xFC)\n"
+            "public XUOAFeatures() : base(0xFC)\n"
             "{\n"
             "EnsureCapacity(9);\n"
             "m_Stream.Write((ushort)0x0032);\n"
@@ -1579,10 +1579,10 @@ void OrionLauncherWindow::updateOrionFeaturesCode()
             "}",
             featuresFlags);
     }
-    else if (ui->rb_OrionFeaturesPOL->isChecked())
+    else if (ui->rb_XuoFeaturesPOL->isChecked())
     {
         code.sprintf(
-            "program oafeatures_sendpacket(who)\n"
+            "program XUOAFeatures_sendpacket(who)\n"
             "var res := SendPacket(who, \"FC00090032%08X\");\n"
             "if (!res)\n"
             "print(\"SendPacket error: \" + res.errortext );\n"
@@ -1591,5 +1591,5 @@ void OrionLauncherWindow::updateOrionFeaturesCode()
             featuresFlags);
     }
 
-    ui->pte_OrionFeaturesCode->setPlainText(code);
+    ui->pte_XuoFeaturesCode->setPlainText(code);
 }

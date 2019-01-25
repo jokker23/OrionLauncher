@@ -1,6 +1,6 @@
 /***********************************************************************************
 **
-** OrionLauncherWindow.h
+** LauncherWindow.h
 **
 ** Copyright (C) December 2016 Hotride
 ** Copyright (C) December 2018 Danny Angelo Carminati Grein
@@ -18,16 +18,16 @@
 
 namespace Ui
 {
-class OrionLauncherWindow;
+class LauncherWindow;
 }
 
-class OrionLauncherWindow : public QMainWindow
+class LauncherWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit OrionLauncherWindow(QWidget *parent = nullptr);
-    ~OrionLauncherWindow();
+    explicit LauncherWindow(QWidget *parent = nullptr);
+    ~LauncherWindow();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -46,7 +46,7 @@ private slots:
     void on_pb_ProxyAdd_clicked();
     void on_pb_ProxySave_clicked();
     void on_pb_ProxyRemove_clicked();
-    void on_tb_SetOrionPath_clicked();
+    void on_tb_SetXuoPath_clicked();
     void on_pb_Launch_clicked();
     void on_pb_GenerateConfig_clicked();
     void on_cb_LaunchAutologin_clicked();
@@ -54,21 +54,21 @@ private slots:
     void on_cb_LaunchSaveAero_clicked();
     void on_cb_LaunchFastLogin_clicked();
     void on_cb_LaunchRunUOAM_clicked();
-    void on_lw_OAFeaturesOptions_clicked(const QModelIndex &index);
-    void on_lw_OAFeaturesScripts_clicked(const QModelIndex &index);
-    void on_rb_OAFeaturesSphere_clicked();
-    void on_rb_OAFeaturesRunUO_clicked();
-    void on_rb_OAFeaturesPOL_clicked();
+    void on_lw_XUOAFeaturesOptions_clicked(const QModelIndex &index);
+    void on_lw_XUOAFeaturesScripts_clicked(const QModelIndex &index);
+    void on_rb_XUOAFeaturesSphere_clicked();
+    void on_rb_XUOAFeaturesRunUO_clicked();
+    void on_rb_XUOAFeaturesPOL_clicked();
     void on_pb_CheckUpdates_clicked();
-    void on_cb_OrionPath_currentIndexChanged(int index);
+    void on_cb_XuoPath_currentIndexChanged(int index);
     void on_pb_ApplyUpdates_clicked();
     void on_pb_RestoreSelectedVersion_clicked();
     void on_pb_ShowChangelog_clicked();
     void on_lw_Packages_doubleClicked(const QModelIndex &index);
-    void on_lw_OrionFeaturesOptions_clicked(const QModelIndex &index);
-    void on_rb_OrionFeaturesSphere_clicked();
-    void on_rb_OrionFeaturesRunUO_clicked();
-    void on_rb_OrionFeaturesPOL_clicked();
+    void on_lw_XuoFeaturesOptions_clicked(const QModelIndex &index);
+    void on_rb_XuoFeaturesSphere_clicked();
+    void on_rb_XuoFeaturesRunUO_clicked();
+    void on_rb_XuoFeaturesPOL_clicked();
     void on_pb_Process_clicked();
     void on_tb_SetReleasePath_clicked();
     void on_tb_SetClientPath_clicked();
@@ -91,7 +91,7 @@ signals:
     void autoUpdateNotification();
 
 private:
-    Ui::OrionLauncherWindow *ui = nullptr;
+    Ui::LauncherWindow *ui = nullptr;
     int m_FilesToUpdateCount = 0;
     int m_DownloadingPackageTotal = 0;
     bool m_Loading = true;
@@ -114,6 +114,6 @@ private:
     QString encodeArgumentString(const char *text, const int &length);
 
     void runProgram(const QString &exePath, const QStringList &args, const QString &directory);
-    void updateOAFeaturesCode();
-    void updateOrionFeaturesCode();
+    void updateXUOAFeaturesCode();
+    void updateXuoFeaturesCode();
 };

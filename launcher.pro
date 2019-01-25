@@ -1,9 +1,4 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2016-12-20T16:45:23
-#
-#-------------------------------------------------
-VERSION = 1.30.1
+VERSION = 1.0.0
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
@@ -16,7 +11,7 @@ CONFIG(debug, debug|release) {
 unix:!macx {
     DEFINES += USE_RELAUNCH=1 BUILD_LINUX=1 BUILD_MACOS=0 BUILD_WINDOWS=0
 }
-win32:win64 {
+win32|win64 {
     DEFINES += USE_RELAUNCH=1 BUILD_WINDOWS=1 BUILD_LINUX=0 BUILD_MACOS=0
 }
 macx {
@@ -25,20 +20,20 @@ macx {
 
 QT       += core gui  network widgets
 # concurrent
-TARGET = orionlauncher
+TARGET = launcher
 TEMPLATE = app
 
 CONFIG += c++11
 
 SOURCES += main.cpp\
-        orionlauncherwindow.cpp \
+        launcherwindow.cpp \
         serverlistitem.cpp \
         proxylistitem.cpp \
         changelogform.cpp \
         updatemanager.cpp \
     xxhash.cpp
 
-HEADERS  += orionlauncherwindow.h \
+HEADERS  += launcherwindow.h \
         serverlistitem.h \
         proxylistitem.h \
         qzipreader_p.h \
@@ -49,12 +44,12 @@ HEADERS  += orionlauncherwindow.h \
     qzipwriter_p.h
 
 
-FORMS    += orionlauncherwindow.ui \
+FORMS    += launcherwindow.ui \
     changelogform.ui
 
-OTHER_FILES += orionlauncher.rc
+OTHER_FILES += launcher.rc
 
-RC_FILE = orionlauncher.rc
+RC_FILE = launcher.rc
 
 RESOURCES += \
     res.qrc

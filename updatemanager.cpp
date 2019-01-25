@@ -236,7 +236,7 @@ void UpdateManager::readManifest(const QString &xmlData)
                 ReadAttribute(release.Name, "name");
                 ReadAttribute(release.Version, "version");
 
-                launcher = prod == "OrionLauncher";
+                launcher = prod == "X:UO Launcher";
                 prod = release.Name;
                 version = release.Version;
                 releaseList[prod][version] = release;
