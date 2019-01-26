@@ -28,9 +28,9 @@
 #define LAUNCHER_TITLE "X:UO Launcher v" APP_VERSION
 
 #if defined(QT_NO_DEBUG)
-#define UPDATER_HOST "http://www.crossuo.com/"
+#define UPDATER_HOST "http://update.crossuo.com/"
 #else
-#define UPDATER_HOST "http://www.crossuo.com/"
+#define UPDATER_HOST "http://update.crossuo.com/"
 //#define UPDATER_HOST "http://192.168.2.14:8089/"
 #endif
 
