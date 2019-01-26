@@ -352,6 +352,7 @@ void UpdateManager::writeCache(const QString &path, QMap<QString, QString> cache
 
 void UpdateManager::generateUpdate(const QString &path, const QString &plat, const QString &product, const QString &version, QWidget *)
 {
+    auto prodFolder = product.toLower().remove(' ').remove(':');
     auto cache = readCache(path + "/" + plat);
     QMap<QString, QString> changes;
     QList<CFileInfo> changesInfo;
@@ -428,7 +429,7 @@ void UpdateManager::generateUpdate(const QString &path, const QString &plat, con
         return entries;
     };
 
-    auto data = collectEntries(plat + "/" + product);
+    auto data = collectEntries(plat + "/" + prodFolder);
     auto manifest = path + "/" + plat + ".manifest.xml";
 
     QFile xml(manifest);
