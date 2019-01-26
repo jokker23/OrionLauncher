@@ -38,7 +38,13 @@ public:
         const QString &address,
         const QString &account,
         const QString &password,
-        const QString &character);
+        const QString &character,
+        const QString &clientVersion,
+        const QString &clientPath,
+        const int &clientType,
+        const QString &serverProxy,
+        const bool &serveUseProxy,
+        const bool &serverUseCrypt);
     virtual ~CServerListItem() {}
 
     QString GetAddress() const { return m_Address; }

@@ -278,7 +278,13 @@ void LauncherWindow::on_pb_ServerAdd_clicked()
         ui->le_ServerAddress->text(),
         ui->le_ServerAccount->text(),
         ui->le_ServerPassword->text(),
-        ui->le_ServerCharacter->text());
+        ui->le_ServerCharacter->text(),
+        ui->le_ServerClientVersion->text(),
+        ui->le_ServerClientPath->text(),
+        ui->cb_ServerClientType->currentIndex(),
+        ui->cb_ServerProxy->currentText(),
+        ui->cb_ServerUseProxy->isChecked(),
+        ui->cb_ServerUseCrypt->isChecked());
     item->SetUseProxy(ui->cb_ServerUseProxy->isChecked());
     item->SetProxy(ui->cb_ServerProxy->currentText());
 

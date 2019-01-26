@@ -18,12 +18,24 @@ CServerListItem::CServerListItem(const QString &name,
     const QString &address,
     const QString &account,
     const QString &password,
-    const QString &character)
+    const QString &character,
+    const QString &clientVersion,
+    const QString &clientPath,
+    const int &clientType,
+    const QString &serverProxy,
+    const bool &serveUseProxy,
+    const bool &serverUseCrypt)
     : QListWidgetItem(name)
     , m_Address(address)
     , m_Account(account)
     , m_Password(password)
     , m_Character(character)
+    , m_ClientVersion(clientVersion)
+    , m_ClientPath(clientPath)
+    , m_ClientType(clientType)
+    , m_Proxy(serverProxy)
+    , m_UseProxy(serveUseProxy)
+    , m_UseCrypt(serverUseCrypt)
     , m_Command("")
 {
 }
