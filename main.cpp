@@ -25,8 +25,14 @@ int main(int argc, char *argv[])
         QFile::remove(app);
         QFile::copy(qApp->applicationFilePath(), app);
         QProcess child;
-        child.setProgram("\"" + app + "\"");
-        child.startDetached();
+        auto exe = "\"" + app + "\"";
+        const auto success = child.startDetached(exe);
+        if (!success)
+        {
+            QString err(QString("Could not start\nReason:\n"));
+            QMessageBox::critical(nullptr, "Error", err + child.errorString());
+        }
+        QThread::msleep(250);
         return 0;
     }
 #endif

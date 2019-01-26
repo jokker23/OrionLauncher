@@ -20,7 +20,7 @@ macx {
 
 QT       += core gui  network widgets
 # concurrent
-TARGET = launcher
+TARGET = xuolauncher
 TEMPLATE = app
 
 CONFIG += c++11

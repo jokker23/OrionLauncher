@@ -998,15 +998,13 @@ void LauncherWindow::runProgram(const QString &exePath, const QStringList &args,
 {
     QProcess process;
     QDir::setCurrent(directory);
-    process.setArguments(args);
-    process.setWorkingDirectory(directory);
-    process.setProgram(exePath);
-    const auto success = process.startDetached();
+    const auto success = process.startDetached(exePath, args, directory);
     if (!success)
     {
         QString err(QString("Could not launch application:\n" + exePath + "\nReason:\n"));
         QMessageBox::critical(this, "Error", err + process.errorString());
     }
+    QThread::msleep(250);
 }
 
 void LauncherWindow::on_pb_GenerateConfig_clicked()
