@@ -14,3 +14,4 @@ xuolauncher.vcxproj
 xuolauncher.vcxproj.filters
 proxy.xml
 server.xml
+*.DS_Store
