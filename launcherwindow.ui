@@ -43,7 +43,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tb_Server">
        <attribute name="title">
@@ -1068,10 +1068,10 @@
        <widget class="QPlainTextEdit" name="pte_XuoFeaturesCode">
         <property name="geometry">
          <rect>
-          <x>320</x>
-          <y>100</y>
-          <width>351</width>
-          <height>291</height>
+          <x>300</x>
+          <y>85</y>
+          <width>371</width>
+          <height>306</height>
          </rect>
         </property>
         <property name="lineWrapMode">
@@ -1097,9 +1097,9 @@
        <widget class="QGroupBox" name="gb_XuoFeaturesEmulator">
         <property name="geometry">
          <rect>
-          <x>320</x>
+          <x>300</x>
           <y>30</y>
-          <width>351</width>
+          <width>371</width>
           <height>61</height>
          </rect>
         </property>
@@ -1109,9 +1109,9 @@
         <widget class="QRadioButton" name="rb_XuoFeaturesSphere">
          <property name="geometry">
           <rect>
-           <x>30</x>
+           <x>5</x>
            <y>30</y>
-           <width>71</width>
+           <width>106</width>
            <height>17</height>
           </rect>
          </property>
@@ -1125,9 +1125,9 @@
         <widget class="QRadioButton" name="rb_XuoFeaturesRunUO">
          <property name="geometry">
           <rect>
-           <x>150</x>
+           <x>120</x>
            <y>30</y>
-           <width>71</width>
+           <width>111</width>
            <height>17</height>
           </rect>
          </property>
@@ -1138,9 +1138,9 @@
         <widget class="QRadioButton" name="rb_XuoFeaturesPOL">
          <property name="geometry">
           <rect>
-           <x>270</x>
+           <x>240</x>
            <y>30</y>
-           <width>51</width>
+           <width>81</width>
            <height>17</height>
           </rect>
          </property>
@@ -1154,7 +1154,7 @@
          <rect>
           <x>10</x>
           <y>30</y>
-          <width>271</width>
+          <width>281</width>
           <height>361</height>
          </rect>
         </property>
@@ -1769,9 +1769,9 @@
         <widget class="QRadioButton" name="rb_XUOAFeaturesSphere">
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>0</x>
            <y>30</y>
-           <width>71</width>
+           <width>96</width>
            <height>17</height>
           </rect>
          </property>
@@ -1785,9 +1785,9 @@
         <widget class="QRadioButton" name="rb_XUOAFeaturesRunUO">
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>100</x>
            <y>30</y>
-           <width>71</width>
+           <width>91</width>
            <height>17</height>
           </rect>
          </property>
@@ -1798,9 +1798,9 @@
         <widget class="QRadioButton" name="rb_XUOAFeaturesPOL">
          <property name="geometry">
           <rect>
-           <x>210</x>
+           <x>200</x>
            <y>30</y>
-           <width>51</width>
+           <width>66</width>
            <height>17</height>
           </rect>
          </property>
@@ -1813,9 +1813,9 @@
         <property name="geometry">
          <rect>
           <x>400</x>
-          <y>100</y>
+          <y>85</y>
           <width>271</width>
-          <height>291</height>
+          <height>306</height>
          </rect>
         </property>
         <property name="lineWrapMode">
