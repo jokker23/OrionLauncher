@@ -527,10 +527,13 @@ void LauncherWindow::writeCfg()
             stream << "RememberAcctPW=yes" << endl;
         }
         stream << "AutoLogin=" << (item->GetOptionFastLogin() ? "yes" : "no") << endl;
-        stream << "ClientType=" << item->GetClientTypeString() << endl;
         stream << "Crypt=" << (item->GetUseCrypt() ? "yes" : "no") << endl;
+
+        if (!item->GetClientTypeString().isEmpty())
+            stream << "ClientType=" << item->GetClientTypeString() << endl;
         stream << "ClientVersion=" << item->GetClientVersion() << endl;
         stream << "CustomPath=" << item->GetClientPath() << endl;
+
         if (!item->GetAddress().isEmpty())
         {
             stream << "LoginServer=" << item->GetAddress() << endl;
